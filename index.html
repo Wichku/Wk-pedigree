@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wk easy Pedigree - Active Style Highlights</title>
+    <title>Wk easy Pedigree</title>
     <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }
@@ -62,12 +62,10 @@
         <button title="Add Male" onclick="addPersonAction('male')">⬜</button>
         <button title="Add Female" onclick="addPersonAction('female')">⚪</button>
         <div class="sep"></div>
-        <button class="text-btn" id="btn-connect" onclick="toggleConnectMode()">🔗 Link Mode: OFF</button>
-        <div class="sep"></div>
         <button title="Undo" onclick="undo()">↩️</button>
         <button title="Redo" onclick="redo()">↪️</button>
         <div class="sep"></div>
-        <button class="danger text-btn" onclick="deleteSelectedAction()">🗑️ Del</button>
+        <button class="danger text-btn" onclick="deleteSelectedAction()">🗑️</button>
         <div class="sep"></div>
         <button title="Save Image" onclick="downloadImage()">💾</button>
         <button class="danger text-btn" onclick="clearCanvasAction()">❌ Clear</button>
@@ -87,8 +85,8 @@
 
         <span class="menu-label">Markers</span>
         <div class="editor-row">
-            <button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()">⊘ Slash</button>
-            <button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()">↙️ Index</button>
+            <button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()">⊘ Dead</button>
+            <button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()">↙️</button>
         </div>
 
         <button onclick="closeEditor()" style="width:100%; margin-top:5px; background:#2196f3; color:white; border:none;">Done</button>
@@ -117,7 +115,7 @@
     </div>
 
     <div id="instructions">
-        <b>Connect:</b> Link mode > Tap shape to shape/line<br>
+        <b>Connect:</b> Tap shape to shape/line<br>
         <b>Edit:</b> Double-tap<br>
         "Enjoy easy pedigree by Wichku😎"
     </div>
@@ -159,7 +157,7 @@
         stage.x(dims.width/2);
         stage.y(dims.height/2);
 
-        let isConnectMode = false, idCounter = 1;
+        let isConnectMode = true, idCounter = 1;
         let selectedNodes = [], selectedLine = null, connections = [], historyStack = [], redoStack = [];
         let isSelecting = false, selectionStart = {x:0,y:0};
         const selectionRect = new Konva.Rect({ fill: 'rgba(33, 150, 243, 0.2)', stroke: '#2196f3', visible: false });
@@ -361,7 +359,7 @@
         function setupLineEvents(hit, vis) {
             hit.on('mouseover', () => { document.body.style.cursor='pointer'; vis.strokeWidth(4); });
             hit.on('mouseout', () => { document.body.style.cursor='default'; if(selectedLine!==hit) vis.strokeWidth(2); });
-            hit.on('click tap', function(e) { e.cancelBubble=true; hideContextMenu(); if(isConnectMode) handleConnectionLogic(this); else selectLine(this); });
+            hit.on('click tap', function(e) { e.cancelBubble=true; hideContextMenu(); handleConnectionLogic(this); });
             hit.on('dblclick dbltap', function(e) {
                 e.cancelBubble = true;
                 const c = getAssociatedConn(this);
@@ -430,7 +428,6 @@
             editor.style.display = 'flex';
             editorName.focus();
 
-            // Highlight buttons based on node state
             updateEditorButtons(node);
         }
 
@@ -439,14 +436,11 @@
             const isDeceased = node.getAttr('isDeceased') || false;
             const isProband = node.getAttr('isProband') || false;
 
-            // Reset Fill
             ['edit-btn-white', 'edit-btn-half', 'edit-btn-black'].forEach(id => document.getElementById(id).classList.remove('active'));
-            // Set Active Fill
             if (fill === 'white') document.getElementById('edit-btn-white').classList.add('active');
             else if (fill === 'half') document.getElementById('edit-btn-half').classList.add('active');
             else if (fill === 'black') document.getElementById('edit-btn-black').classList.add('active');
 
-            // Set Markers
             const btnDec = document.getElementById('edit-btn-deceased');
             isDeceased ? btnDec.classList.add('active') : btnDec.classList.remove('active');
 
@@ -517,9 +511,7 @@
         function selectLine(h) { clearSelection(); selectedLine=h; getAssociatedConn(h).line.stroke('#2196f3'); }
         
         function handleNodeClick(node, e) {
-            if(isConnectMode) handleConnectionLogic(node);
-            else if(e.evt.shiftKey) { isSelected(node)?(selectedNodes=selectedNodes.filter(n=>n!==node),node.findOne('.shape-body').stroke('black').strokeWidth(2)):(selectedNodes.push(node),highlightNodes()); }
-            else if(!isSelected(node)) selectSingle(node);
+            handleConnectionLogic(node);
         }
         function handleConnectionLogic(obj) {
             const isNode=obj.nodeType==='Group', isLine=obj.name()==='link-hit-area';
@@ -547,7 +539,6 @@
             menu.style.display='flex'; menu.style.top=e.evt.clientY+'px'; menu.style.left=e.evt.clientX+'px'; 
             nOpts.style.display=type==='node'?'flex':'none'; lOpts.style.display=type==='line'?'flex':'none'; 
             
-            // Highlight buttons in Context Menu
             if (type === 'node' && selectedNodes.length === 1) {
                 const node = selectedNodes[0];
                 updateContextMenuButtons(node);
@@ -596,14 +587,6 @@
                 s.fillLinearGradientStartPoint({x:sx,y:0}); s.fillLinearGradientEndPoint({x:ex,y:0});
                 s.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); s.fillPriority('linear-gradient');
             }
-        }
-
-        function toggleConnectMode() {
-            isConnectMode = !isConnectMode;
-            const btn = document.getElementById('btn-connect');
-            clearSelection(); hideContextMenu(); closeEditor();
-            if(isConnectMode) { btn.innerHTML = "🔗 Link Mode: <b>ON</b>"; btn.classList.add('active'); document.body.style.cursor = "crosshair"; }
-            else { btn.innerHTML = "🔗 Link Mode: <b>OFF</b>"; btn.classList.remove('active'); document.body.style.cursor = "default"; }
         }
 
         function downloadImage() {

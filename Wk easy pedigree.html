@@ -1,665 +1,648 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; min-height: 15.0px}
-    span.s1 {font: 13.0px 'Apple Symbols'}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wk easy Pedigree - Active Style Highlights</title>
+    <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }
+        
+        /* Main Header Toolbar */
+        #toolbar {
+            position: relative; width: 100%; box-sizing: border-box;
+            background: white; padding: 10px 15px; border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10;
+            display: flex; flex-wrap: wrap; gap: 10px; align-items: center; user-select: none;
+        }
+
+        /* Context Menu (Desktop Right Click) */
+        #context-menu {
+            display: none; position: fixed; background: white; padding: 10px; 
+            border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000; flex-direction: column; gap: 8px; align-items: flex-start; user-select: none; min-width: 120px;
+        }
+
+        /* Mobile/Desktop Editor (Double Click/Tap) */
+        #node-editor {
+            display: none; position: fixed; z-index: 1001; background: white; padding: 12px;
+            border-radius: 12px; border: 1px solid #ccc; box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+            flex-direction: column; gap: 10px; min-width: 220px;
+        }
+
+        .menu-row, .editor-row { display: flex; gap: 5px; align-items: center; width: 100%; }
+        .menu-label { font-size: 11px; font-weight: bold; color: #666; margin-bottom: 2px; display: block; }
+
+        button {
+            padding: 6px 12px; cursor: pointer; border: 1px solid #ccc;
+            background: #fff; border-radius: 4px; font-weight: 600; font-size: 16px;
+            display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; min-width: 40px;
+        }
+        button:hover { background-color: #f0f0f0; transform: translateY(-1px); }
+        button.active { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; box-shadow: inset 0 0 3px rgba(33, 150, 243, 0.2); }
+        button.danger { color: #d32f2f; border-color: #ef9a9a; } button.danger:hover { background-color: #ffebee; }
+        
+        button.style-btn, .editor-btn { flex: 1; padding: 8px; justify-content: center; font-size: 16px; }
+        button.text-btn { font-size: 13px; min-width: auto; }
+        .sep { width: 1px; height: 20px; background: #ddd; margin: 0 2px; }
+
+        /* Editor Input */
+        #editor-name { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 16px; }
+
+        #instructions { 
+            position: absolute; bottom: 15px; left: 15px; 
+            background: rgba(255,255,255,0.9); padding: 10px; border-radius: 5px;
+            color: #444; font-size: 12px; pointer-events: none; border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Wk Easy Pedigree - Active Style Highlights&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://unpkg.com/konva@9.2.0/konva.min.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Main Header Toolbar */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#toolbar {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative; width: 100%; box-sizing: border-box;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: white; padding: 10px 15px; border-bottom: 1px solid #ddd;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex; flex-wrap: wrap; gap: 10px; align-items: center; user-select: none;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Context Menu (Desktop Right Click) */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#context-menu {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: none; position: fixed; background: white; padding: 10px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: 1000; flex-direction: column; gap: 8px; align-items: flex-start; user-select: none; min-width: 120px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Mobile/Desktop Editor (Double Click/Tap) */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#node-editor {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: none; position: fixed; z-index: 1001; background: white; padding: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 12px; border: 1px solid #ccc; box-shadow: 0 5px 25px rgba(0,0,0,0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>flex-direction: column; gap: 10px; min-width: 220px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.menu-row, .editor-row { display: flex; gap: 5px; align-items: center; width: 100%; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.menu-label { font-size: 11px; font-weight: bold; color: #666; margin-bottom: 2px; display: block; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>button {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 6px 12px; cursor: pointer; border: 1px solid #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: #fff; border-radius: 4px; font-weight: 600; font-size: 16px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.2s; min-width: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>button:hover { background-color: #f0f0f0; transform: translateY(-1px); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>button.active { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; box-shadow: inset 0 0 3px rgba(33, 150, 243, 0.2); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>button.danger { color: #d32f2f; border-color: #ef9a9a; } button.danger:hover { background-color: #ffebee; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>button.style-btn, .editor-btn { flex: 1; padding: 8px; justify-content: center; font-size: 16px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>button.text-btn { font-size: 13px; min-width: auto; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.sep { width: 1px; height: 20px; background: #ddd; margin: 0 2px; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* Editor Input */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#editor-name { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 16px; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>#instructions {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; bottom: 15px; left: 15px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255,255,255,0.9); padding: 10px; border-radius: 5px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #444; font-size: 12px; pointer-events: none; border: 1px solid #ddd;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="toolbar"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button title="Add Male" onclick="addPersonAction('male')"&gt;⬜&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button title="Add Female" onclick="addPersonAction('female')"&gt;⚪&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="sep"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="text-btn" id="btn-connect" onclick="toggleConnectMode()"&gt;🔗 Link Mode: OFF&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="sep"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button title="Undo" onclick="undo()"&gt;↩️&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button title="Redo" onclick="redo()"&gt;↪️&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="sep"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="danger text-btn" onclick="deleteSelectedAction()"&gt;🗑️ Del&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="sep"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button title="Save Image" onclick="downloadImage()"&gt;💾&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="danger text-btn" onclick="clearCanvasAction()"&gt;❌ Clear&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Node Editor (Double Tap) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="node-editor"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="menu-label"&gt;Name&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;input type="text" id="editor-name" placeholder="Name"&gt;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="menu-label"&gt;Fill Style&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="editor-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="edit-btn-white" class="editor-btn" onclick="setEditorStyle('white')" title="Unaffected"&gt;⬜&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="edit-btn-half" class="editor-btn" onclick="setEditorStyle('half')" title="Carrier"&gt;🌓&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="edit-btn-black" class="editor-btn" onclick="setEditorStyle('black')" title="Affected"&gt;⬛&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="menu-label"&gt;Markers&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="editor-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()"&gt;<span class="s1">⊘</span> Slash&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()"&gt;↙️ Index&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="closeEditor()" style="width:100%; margin-top:5px; background:#2196f3; color:white; border:none;"&gt;Done&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;!-- Context Menu (Right Click backup) --&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="context-menu" oncontextmenu="return false;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="menu-node-options" class="menu-group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="menu-label"&gt;Quick Actions&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="menu-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-white" class="style-btn" onclick="setShapeFill('white')"&gt;⬜&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-half" class="style-btn" onclick="setShapeFill('half')"&gt;🌓&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-black" class="style-btn" onclick="setShapeFill('black')"&gt;⬛&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="menu-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-deceased" class="style-btn" onclick="toggleDeceased()"&gt;<span class="s1">⊘</span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-proband" class="style-btn" onclick="toggleProband()"&gt;↙️&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="menu-line-options" class="menu-group" style="display:none;"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="menu-label"&gt;Line Style&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="menu-row"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button id="ctx-btn-sep" class="style-btn" onclick="toggleSeparated()"&gt;<span class="s1">⫽</span>&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="instructions"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;b&gt;Connect:&lt;/b&gt; Link mode &gt; Tap shape to shape/line&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;b&gt;Edit:&lt;/b&gt; Double-tap&lt;br&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>"Enjoy easy pedigree by Wichku😎"</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="container"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const GRID_SIZE = 80;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const SHAPE_SIZE = 40;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const DARK_GREY = '#444444';<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const toolbarEl = document.getElementById('toolbar');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const VIRTUAL_SIZE = 10000; // Large drawing area</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function getStageDims() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>return { width: window.innerWidth, height: window.innerHeight - toolbarEl.offsetHeight };</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const dims = getStageDims();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const stage = new Konva.Stage({ container: 'container', width: dims.width, height: dims.height });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const layer = new Konva.Layer();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const gridLayer = new Konva.Layer();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const dragLayer = new Konva.Layer();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.add(gridLayer); stage.add(layer); stage.add(dragLayer);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function drawGrid() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gridLayer.destroyChildren();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const start = -VIRTUAL_SIZE / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const end = VIRTUAL_SIZE / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>for (let x = start; x &lt;= end; x += GRID_SIZE) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>gridLayer.add(new Konva.Line({ points: [x, start, x, end], stroke: '#e0e0e0', strokeWidth: 1, dash: [4, 4] }));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>for (let y = start; y &lt;= end; y += GRID_SIZE) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>gridLayer.add(new Konva.Line({ points: [start, y, end, y], stroke: '#e0e0e0', strokeWidth: 1, dash: [4, 4] }));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gridLayer.add(new Konva.Circle({ x: 0, y: 0, radius: 3, fill: '#ccc' }));</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>drawGrid();</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.x(dims.width/2);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.y(dims.height/2);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let isConnectMode = false, idCounter = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let selectedNodes = [], selectedLine = null, connections = [], historyStack = [], redoStack = [];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let isSelecting = false, selectionStart = {x:0,y:0};</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const selectionRect = new Konva.Rect({ fill: 'rgba(33, 150, 243, 0.2)', stroke: '#2196f3', visible: false });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>dragLayer.add(selectionRect);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>// --- ZOOM &amp; PAN LOGIC ---</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let lastCenter = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let lastDist = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('touchmove', function (e) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const touch1 = e.evt.touches[0];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const touch2 = e.evt.touches[1];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (touch1 &amp;&amp; touch2) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>e.evt.preventDefault();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(isSelecting) { isSelecting=false; selectionRect.visible(false); }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(stage.isDragging()) stage.stopDrag();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const p1 = { x: touch1.clientX, y: touch1.clientY };</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const p2 = { x: touch2.clientX, y: touch2.clientY };</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (!lastCenter) { lastCenter = getCenter(p1, p2); return; }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const newCenter = getCenter(p1, p2);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const dist = getDistance(p1, p2);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (!lastDist) lastDist = dist;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const pointTo = {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>x: (newCenter.x - stage.x()) / stage.scaleX(),</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>y: (newCenter.y - stage.y()) / stage.scaleX(),</p>
-<p class="p1"><span class="Apple-converted-space">                </span>};</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const scale = stage.scaleX() * (dist / lastDist);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>stage.scale({ x: scale, y: scale });</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const dx = newCenter.x - lastCenter.x;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const dy = newCenter.y - lastCenter.y;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const newPos = { x: newCenter.x - pointTo.x * scale + dx, y: newCenter.y - pointTo.y * scale + dy };</p>
-<p class="p1"><span class="Apple-converted-space">                </span>stage.position(newPos);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>lastDist = dist;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>lastCenter = newCenter;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('touchend', function () { lastDist = 0; lastCenter = null; });</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('wheel', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>e.evt.preventDefault();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const scaleBy = 1.1;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const oldScale = stage.scaleX();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const pointer = stage.getPointerPosition();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const mousePointTo = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const direction = e.evt.deltaY &gt; 0 ? -1 : 1;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const newScale = direction &gt; 0 ? oldScale * scaleBy : oldScale / scaleBy;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (newScale &lt; 0.1 || newScale &gt; 5) return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>stage.scale({ x: newScale, y: newScale });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const newPos = { x: pointer.x - mousePointTo.x * newScale, y: pointer.y - mousePointTo.y * newScale };</p>
-<p class="p1"><span class="Apple-converted-space">            </span>stage.position(newPos);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function getDistance(p1, p2) { return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function getCenter(p1, p2) { return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function saveHistory() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>redoStack = [];<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const state = JSON.stringify({</p>
-<p class="p1"><span class="Apple-converted-space">                </span>idCounter,<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>nodes: layer.find('.person-group').map(g =&gt; ({</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>id: g.id(), x: g.x(), y: g.y(), type: g.getAttr('personType'), name: g.findOne('.label-text').text(),</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>fillType: g.getAttr('fillType')||'white', isProband: g.getAttr('isProband'), isDeceased: g.getAttr('isDeceased')</p>
-<p class="p1"><span class="Apple-converted-space">                </span>})),</p>
-<p class="p1"><span class="Apple-converted-space">                </span>connections: connections.map(c =&gt; ({</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>id: c.id, type: c.type, p1Id: c.p1Id, p2Id: c.p2Id, parentConnId: c.parentConnId, childId: c.childId, isSeparated: c.isSeparated</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}))</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>historyStack.push(state); if(historyStack.length&gt;20) historyStack.shift();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function undo() { if(historyStack.length){ const s=historyStack.pop(); redoStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function redo() { if(redoStack.length){ const s=redoStack.pop(); historyStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function serializeState() { return { idCounter, nodes: layer.find('.person-group').map(g=&gt;({id:g.id(),x:g.x(),y:g.y(),type:g.getAttr('personType'),name:g.findOne('.label-text').text(),fillType:g.getAttr('fillType'),isProband:g.getAttr('isProband'),isDeceased:g.getAttr('isDeceased')})), connections: connections.map(c=&gt;({id:c.id,type:c.type,p1Id:c.p1Id,p2Id:c.p2Id,parentConnId:c.parentConnId,childId:c.childId,isSeparated:c.isSeparated})) }; }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function loadState(state) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>layer.destroyChildren(); connections=[]; clearSelection(); hideContextMenu(); closeEditor();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>idCounter = state.idCounter;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.nodes.forEach(d=&gt;createNode(d.x,d.y,d.type,d.id,d.name,d.fillType,d.isProband,d.isDeceased));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.connections.filter(c=&gt;c.type==='marriage').forEach(c=&gt;createMarriage(layer.findOne('#'+c.p1Id),layer.findOne('#'+c.p2Id),c.id,false,c.isSeparated));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>state.connections.filter(c=&gt;c.type==='descent').forEach(c=&gt;{</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const p=connections.find(x=&gt;x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(p&amp;&amp;ch) createDescent(p,ch,c.id,false);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>layer.draw();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function findEmptyPosition() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const transform = stage.getAbsoluteTransform().copy().invert();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const topLeft = transform.point({ x: 0, y: 0 });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const bottomRight = transform.point({ x: stage.width(), y: stage.height() });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const startX = Math.round(topLeft.x / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const startY = Math.round(topLeft.y / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const endX = Math.round(bottomRight.x / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const endY = Math.round(bottomRight.y / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const centerX = (startX + endX) / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const centerY = (startY + endY) / 2;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const range = 5;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cxGrid = Math.round(centerX/GRID_SIZE);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const cyGrid = Math.round(centerY/GRID_SIZE);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>for(let r=0; r&lt;range*2; r++) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>for(let x=-r; x&lt;=r; x++) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>for(let y=-r; y&lt;=r; y++) {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>const tx=(cxGrid+x)*GRID_SIZE, ty=(cyGrid+y)*GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>if(!layer.find('.person-group').some(n=&gt;{ const dx=n.x()-tx, dy=n.y()-ty; return Math.sqrt(dx*dx+dy*dy)&lt;GRID_SIZE/2; })) return {x:tx, y:ty};</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>return {x:centerX, y:centerY};</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function addPersonAction(t) { saveHistory(); const p=findEmptyPosition(); createNode(p.x, p.y, t, 'node-'+idCounter++, '', 'white', false, false); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function deleteSelectedAction() {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(selectedNodes.length || selectedLine) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectedNodes.forEach(n =&gt; deleteNode(n));</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(selectedLine) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const conn = getAssociatedConn(selectedLine);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (conn) deleteConnection(conn);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectedNodes = [];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectedLine = null;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>hideContextMenu();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>closeEditor();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function clearCanvasAction() { saveHistory(); layer.destroyChildren(); connections=[]; idCounter=1; clearSelection(); }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function createNode(x, y, type, id, name, fill, isProband, isDeceased) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const grp = new Konva.Group({</p>
-<p class="p1"><span class="Apple-converted-space">                </span>x, y, draggable: true, name: 'person-group', id,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>personType: type, fillType: fill, isProband, isDeceased,</p>
-<p class="p1"><span class="Apple-converted-space">                </span>dragBoundFunc: pos =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const scale = stage.scaleX();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const sx = stage.x();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const sy = stage.y();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const dx = Math.round(((pos.x - sx) / scale) / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const dy = Math.round(((pos.y - sy) / scale) / GRID_SIZE) * GRID_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>return { x: dx * scale + sx, y: dy * scale + sy };</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const size=SHAPE_SIZE;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const props = { stroke:'black', strokeWidth:2, name:'shape-body', shadowColor:'black', shadowBlur:2, shadowOpacity:0.1 };</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const shape = type==='male' ? new Konva.Rect({...props, width:size, height:size, offsetX:size/2, offsetY:size/2}) : new Konva.Circle({...props, radius:size/2});</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const arrow = new Konva.Arrow({ points:[-35,35,-15,15], pointerLength:8, pointerWidth:8, fill:'black', stroke:'black', strokeWidth:2, name:'proband-arrow', visible:isProband });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const slash = new Konva.Line({ points:[-24,24,24,-24], stroke:'black', strokeWidth:2, name:'deceased-slash', visible:isDeceased });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const label = new Konva.Text({ text:name, fontSize:12, fontFamily:'Arial', fill:'#555', y:size/2+8, width:100, offsetX:50, align:'center', name:'label-text' });</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.add(shape, slash, arrow, label);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>applyFillStyle(shape, fill);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.on('dragstart', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>hideContextMenu(); closeEditor();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(!isSelected(grp) &amp;&amp; !e.evt.shiftKey) selectSingle(grp);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory(); selectedNodes.forEach(n =&gt; { n.sdx=n.x(); n.sdy=n.y(); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.on('dragmove', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const dx=e.target.x()-e.target.sdx, dy=e.target.y()-e.target.sdy;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectedNodes.forEach(n =&gt; { if(n!==e.target) { n.x(n.sdx+dx); n.y(n.sdy+dy); } });</p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateAllConnections();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.on('click tap', (e) =&gt; { e.cancelBubble=true; handleNodeClick(grp, e); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.on('dblclick dbltap', () =&gt; { hideContextMenu(); showNodeEditor(grp); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grp.on('contextmenu', (e) =&gt; { e.evt.preventDefault(); if(!isSelected(grp)) selectSingle(grp); showContextMenu(e, 'node'); });</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>layer.add(grp); return grp;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function createMarriage(p1, p2, id=Date.now(), save=true, isSeparated=false) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(save) saveHistory();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const line = new Konva.Line({ stroke:'black', strokeWidth:2 });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const hit = new Konva.Line({ stroke:'transparent', strokeWidth:20, name:'link-hit-area', listening:true });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const slash = new Konva.Line({ points:[0,0,0,0], stroke:'black', strokeWidth:2, visible:isSeparated });</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>setupLineEvents(hit, line);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>layer.add(line, slash, hit); line.moveToBottom(); slash.moveToBottom(); hit.moveToBottom();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections.push({ type:'marriage', id, p1Id:p1.id(), p2Id:p2.id(), line, hitLine:hit, slash, isSeparated });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>updateAllConnections();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function createDescent(parent, child, id=Date.now(), save=true) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(save) saveHistory();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const line = new Konva.Line({ stroke:'black', strokeWidth:2 });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const hit = new Konva.Line({ stroke:'transparent', strokeWidth:15, name:'link-hit-area', listening:true });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>setupLineEvents(hit, line);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>layer.add(line, hit); line.moveToBottom(); hit.moveToBottom();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections.push({ type:'descent', id, parentConnId:parent.id, childId:child.id(), line, hitLine:hit });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>updateAllConnections();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function setupLineEvents(hit, vis) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hit.on('mouseover', () =&gt; { document.body.style.cursor='pointer'; vis.strokeWidth(4); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hit.on('mouseout', () =&gt; { document.body.style.cursor='default'; if(selectedLine!==hit) vis.strokeWidth(2); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hit.on('click tap', function(e) { e.cancelBubble=true; hideContextMenu(); if(isConnectMode) handleConnectionLogic(this); else selectLine(this); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hit.on('dblclick dbltap', function(e) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>e.cancelBubble = true;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const c = getAssociatedConn(this);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(c &amp;&amp; c.type === 'marriage') {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>saveHistory();</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>c.isSeparated = !c.isSeparated;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>c.slash.visible(c.isSeparated);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>layer.draw();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hit.on('contextmenu', function(e) { e.evt.preventDefault(); if(getAssociatedConn(this).type==='marriage'){ selectLine(this); showContextMenu(e, 'line'); } });</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function getAssociatedConn(h) { return connections.find(c =&gt; c.hitLine===h); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function updateAllConnections() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections.filter(c =&gt; c.type==='marriage').forEach(c =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const p1=layer.findOne('#'+c.p1Id), p2=layer.findOne('#'+c.p2Id);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(!p1||!p2) return;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>c.line.points([p1.x(),p1.y(),p2.x(),p2.y()]); c.hitLine.points([p1.x(),p1.y(),p2.x(),p2.y()]);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>c.midX=(p1.x()+p2.x())/2; c.midY=(p1.y()+p2.y())/2;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(c.slash) { c.slash.points([c.midX-6,c.midY+12,c.midX+6,c.midY-12]); c.slash.visible(c.isSeparated); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections.filter(c =&gt; c.type==='descent').forEach(c =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const p=connections.find(x=&gt;x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(!p||!ch) return;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let turnY = (p.midY + ch.y()) / 2;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (Math.abs(ch.y() - p.midY) &gt;= GRID_SIZE * 2) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>turnY = p.midY + (GRID_SIZE / 2);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const pts=[p.midX,p.midY,p.midX,turnY,ch.x(),turnY,ch.x(),ch.y()];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>c.line.points(pts); c.hitLine.points(pts);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function deleteNode(n) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const nid=n.id(), toDel=[];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections.forEach(c =&gt; { if((c.childId===nid)||(c.p1Id===nid||c.p2Id===nid)) toDel.push(c); });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>toDel.forEach(c =&gt; deleteConnection(c)); n.destroy(); layer.draw();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function deleteConnection(c) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(c.type==='marriage') connections.filter(d=&gt;d.parentConnId===c.id).forEach(deleteConnection);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>c.line.destroy(); c.hitLine.destroy(); if(c.slash) c.slash.destroy();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>connections = connections.filter(x=&gt;x!==c); layer.draw();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const editor = document.getElementById('node-editor');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const editorName = document.getElementById('editor-name');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let editingNode = null;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function showNodeEditor(node) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editingNode = node;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editorName.value = node.findOne('.label-text').text();</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const shapePos = node.getAbsolutePosition();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const stageBox = stage.container().getBoundingClientRect();</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>let left = stageBox.left + shapePos.x - 100;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>let top = stageBox.top + shapePos.y + 60;</p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (left &lt; 10) left = 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (left + 220 &gt; window.innerWidth) left = window.innerWidth - 230;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (top + 200 &gt; window.innerHeight) top = stageBox.top + shapePos.y - 210;<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>editor.style.left = left + 'px';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editor.style.top = top + 'px';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editor.style.display = 'flex';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editorName.focus();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Highlight buttons based on node state</p>
-<p class="p1"><span class="Apple-converted-space">            </span>updateEditorButtons(node);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function updateEditorButtons(node) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const fill = node.getAttr('fillType') || 'white';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isDeceased = node.getAttr('isDeceased') || false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isProband = node.getAttr('isProband') || false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Reset Fill</p>
-<p class="p1"><span class="Apple-converted-space">            </span>['edit-btn-white', 'edit-btn-half', 'edit-btn-black'].forEach(id =&gt; document.getElementById(id).classList.remove('active'));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Set Active Fill</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (fill === 'white') document.getElementById('edit-btn-white').classList.add('active');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if (fill === 'half') document.getElementById('edit-btn-half').classList.add('active');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if (fill === 'black') document.getElementById('edit-btn-black').classList.add('active');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Set Markers</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnDec = document.getElementById('edit-btn-deceased');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>isDeceased ? btnDec.classList.add('active') : btnDec.classList.remove('active');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnProb = document.getElementById('edit-btn-proband');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>isProband ? btnProb.classList.add('active') : btnProb.classList.remove('active');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function closeEditor() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (editingNode) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>editingNode.findOne('.label-text').text(editorName.value);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editor.style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>editingNode = null;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>editorName.addEventListener("keypress", (e) =&gt; { if(e.key==="Enter") closeEditor(); });</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function setEditorStyle(t) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(editingNode) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>editingNode.setAttr('fillType',t);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>applyFillStyle(editingNode.findOne('.shape-body'), t);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateEditorButtons(editingNode);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>layer.draw();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>}<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleEditorDeceased() {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(editingNode) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const s=editingNode.findOne('.deceased-slash');<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>s.visible(!s.visible());<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>editingNode.setAttr('isDeceased', s.visible());<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateEditorButtons(editingNode);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>layer.draw();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>}<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleEditorProband() {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(editingNode) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>saveHistory();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>const a=editingNode.findOne('.proband-arrow');<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>a.visible(!a.visible());<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>editingNode.setAttr('isProband', a.visible());<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateEditorButtons(editingNode);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>layer.draw();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>}<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function isSelected(n) { return selectedNodes.includes(n); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function selectSingle(n) { clearSelection(); selectedNodes=[n]; highlightNodes(); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function selectMultiple(ns) { clearSelection(); selectedNodes=ns; highlightNodes(); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function highlightNodes() { selectedNodes.forEach(n =&gt; { const s = n.findOne('.shape-body'); if(s) s.stroke('#2196f3').strokeWidth(3); }); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function clearSelection() {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>selectedNodes.forEach(n =&gt; {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (n.getParent()) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const s = n.findOne('.shape-body');</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if(s) s.stroke('black').strokeWidth(2);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>});<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>selectedNodes=[];<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(selectedLine){</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const conn = getAssociatedConn(selectedLine);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(conn &amp;&amp; conn.line) conn.line.stroke('black');<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectedLine=null;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function selectLine(h) { clearSelection(); selectedLine=h; getAssociatedConn(h).line.stroke('#2196f3'); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleNodeClick(node, e) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(isConnectMode) handleConnectionLogic(node);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if(e.evt.shiftKey) { isSelected(node)?(selectedNodes=selectedNodes.filter(n=&gt;n!==node),node.findOne('.shape-body').stroke('black').strokeWidth(2)):(selectedNodes.push(node),highlightNodes()); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if(!isSelected(node)) selectSingle(node);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function handleConnectionLogic(obj) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isNode=obj.nodeType==='Group', isLine=obj.name()==='link-hit-area';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(selectedNodes.length &amp;&amp; isLine) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const c = getAssociatedConn(obj);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(c) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>const v = selectedNodes.filter(n =&gt; !connections.some(x=&gt;x.type==='descent'&amp;&amp;x.parentConnId===c.id&amp;&amp;x.childId===n.id()));</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if(v.length) { saveHistory(); v.forEach(n =&gt; createDescent(c,n,Date.now()+Math.random(),false)); }</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>clearSelection(); return;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let src = selectedNodes[0] || selectedLine;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(!src) { isNode?selectSingle(obj):selectLine(obj); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const sNode=src.nodeType==='Group', sLine=src.name&amp;&amp;src.name()==='link-hit-area';</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(sNode&amp;&amp;isNode&amp;&amp;src!==obj) { if(!connections.some(c=&gt;c.type==='marriage'&amp;&amp;((c.p1Id===src.id()&amp;&amp;c.p2Id===obj.id())||(c.p1Id===obj.id()&amp;&amp;c.p2Id===src.id())))) createMarriage(src,obj); }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>else if(sLine&amp;&amp;isNode) { const c=getAssociatedConn(src); if(!connections.some(x=&gt;x.type==='descent'&amp;&amp;x.parentConnId===c.id&amp;&amp;x.childId===obj.id())) createDescent(c,obj); }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>else if(sNode&amp;&amp;isLine) { const c=getAssociatedConn(obj); if(!connections.some(x=&gt;x.type==='descent'&amp;&amp;x.parentConnId===c.id&amp;&amp;x.childId===src.id())) createDescent(c,src); }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>clearSelection();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>const menu=document.getElementById('context-menu'), nOpts=document.getElementById('menu-node-options'), lOpts=document.getElementById('menu-line-options');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function showContextMenu(e, type) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>menu.style.display='flex'; menu.style.top=e.evt.clientY+'px'; menu.style.left=e.evt.clientX+'px';<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>nOpts.style.display=type==='node'?'flex':'none'; lOpts.style.display=type==='line'?'flex':'none';<span class="Apple-converted-space"> </span></p>
-<p class="p2"><span class="Apple-converted-space">            </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Highlight buttons in Context Menu</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'node' &amp;&amp; selectedNodes.length === 1) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const node = selectedNodes[0];</p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateContextMenuButtons(node);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (type === 'line' &amp;&amp; selectedLine) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>updateContextLineButtons(selectedLine);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function updateContextMenuButtons(node) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const fill = node.getAttr('fillType') || 'white';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isDeceased = node.getAttr('isDeceased') || false;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const isProband = node.getAttr('isProband') || false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>['ctx-btn-white', 'ctx-btn-half', 'ctx-btn-black'].forEach(id =&gt; document.getElementById(id).classList.remove('active'));</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (fill === 'white') document.getElementById('ctx-btn-white').classList.add('active');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if (fill === 'half') document.getElementById('ctx-btn-half').classList.add('active');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if (fill === 'black') document.getElementById('ctx-btn-black').classList.add('active');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnDec = document.getElementById('ctx-btn-deceased');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>isDeceased ? btnDec.classList.add('active') : btnDec.classList.remove('active');</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnProb = document.getElementById('ctx-btn-proband');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>isProband ? btnProb.classList.add('active') : btnProb.classList.remove('active');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function updateContextLineButtons(line) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const conn = getAssociatedConn(line);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btnSep = document.getElementById('ctx-btn-sep');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (conn &amp;&amp; conn.isSeparated) btnSep.classList.add('active');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else btnSep.classList.remove('active');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function hideContextMenu() { menu.style.display='none'; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function setShapeFill(t) { if(selectedNodes.length){ saveHistory(); selectedNodes[0].setAttr('fillType',t); applyFillStyle(selectedNodes[0].findOne('.shape-body'),t); hideContextMenu(); } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleProband() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],a=n.findOne('.proband-arrow'); a.visible(!a.visible()); n.setAttr('isProband',a.visible()); hideContextMenu(); } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleDeceased() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],s=n.findOne('.deceased-slash'); s.visible(!s.visible()); n.setAttr('isDeceased',s.visible()); hideContextMenu(); } }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleSeparated() { if(selectedLine){ const c=getAssociatedConn(selectedLine); if(c.type==='marriage'){ saveHistory(); c.isSeparated=!c.isSeparated; c.slash.visible(c.isSeparated); hideContextMenu(); } } }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function applyFillStyle(s, t) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(t==='white') { s.fill('white'); s.fillPriority('color'); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else if(t==='black') { s.fill(DARK_GREY); s.fillPriority('color'); }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>let sx=-20, ex=20; if(s.getClassName()==='Rect') { sx=0; ex=40; }</p>
-<p class="p1"><span class="Apple-converted-space">                </span>s.fillLinearGradientStartPoint({x:sx,y:0}); s.fillLinearGradientEndPoint({x:ex,y:0});</p>
-<p class="p1"><span class="Apple-converted-space">                </span>s.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); s.fillPriority('linear-gradient');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function toggleConnectMode() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>isConnectMode = !isConnectMode;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const btn = document.getElementById('btn-connect');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>clearSelection(); hideContextMenu(); closeEditor();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(isConnectMode) { btn.innerHTML = "🔗 Link Mode: &lt;b&gt;ON&lt;/b&gt;"; btn.classList.add('active'); document.body.style.cursor = "crosshair"; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>else { btn.innerHTML = "🔗 Link Mode: &lt;b&gt;OFF&lt;/b&gt;"; btn.classList.remove('active'); document.body.style.cursor = "default"; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>function downloadImage() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gridLayer.hide(); dragLayer.hide();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const link=document.createElement('a'); link.download='pedigree.png';</p>
-<p class="p1"><span class="Apple-converted-space">            </span>link.href=stage.toDataURL({ pixelRatio:2 });</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.body.appendChild(link); link.click(); document.body.removeChild(link);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gridLayer.show(); dragLayer.show();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('mousedown touchstart', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>hideContextMenu(); closeEditor();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(e.target===stage &amp;&amp; e.evt.touches &amp;&amp; e.evt.touches.length &gt; 1) return; // Ignore if 2 fingers (Pan)</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(e.target===stage) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>e.evt.preventDefault(); isSelecting=true;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Use RELATIVE pointer for selection to work with zoom/pan</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const ptr=stage.getRelativePointerPosition();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectionStart={x:ptr.x,y:ptr.y};</p>
-<p class="p1"><span class="Apple-converted-space">                </span>selectionRect.visible(true); selectionRect.width(0); selectionRect.height(0); selectionRect.position(selectionStart);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>clearSelection();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('mousemove touchmove', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(!isSelecting) return;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const ptr=stage.getRelativePointerPosition();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const x=Math.min(selectionStart.x,ptr.x), y=Math.min(selectionStart.y,ptr.y), w=Math.abs(ptr.x-selectionStart.x), h=Math.abs(ptr.y-selectionStart.y);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>selectionRect.position({x,y}); selectionRect.width(w); selectionRect.height(h);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stage.on('mouseup touchend', (e) =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if(isSelecting) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>isSelecting=false; selectionRect.visible(false);</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const box=selectionRect.getClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">                </span>const captured=layer.find('.person-group').filter(n=&gt;Konva.Util.haveIntersection(box,n.getClientRect()));</p>
-<p class="p1"><span class="Apple-converted-space">                </span>if(captured.length) selectMultiple(captured);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>window.addEventListener('resize', () =&gt; { const d=getStageDims(); stage.width(d.width); stage.height(d.height); drawGrid(); });</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+    <div id="toolbar">
+        <button title="Add Male" onclick="addPersonAction('male')">⬜</button>
+        <button title="Add Female" onclick="addPersonAction('female')">⚪</button>
+        <div class="sep"></div>
+        <button class="text-btn" id="btn-connect" onclick="toggleConnectMode()">🔗 Link Mode: OFF</button>
+        <div class="sep"></div>
+        <button title="Undo" onclick="undo()">↩️</button>
+        <button title="Redo" onclick="redo()">↪️</button>
+        <div class="sep"></div>
+        <button class="danger text-btn" onclick="deleteSelectedAction()">🗑️ Del</button>
+        <div class="sep"></div>
+        <button title="Save Image" onclick="downloadImage()">💾</button>
+        <button class="danger text-btn" onclick="clearCanvasAction()">❌ Clear</button>
+    </div>
+
+    <!-- Node Editor (Double Tap) -->
+    <div id="node-editor">
+        <span class="menu-label">Name</span>
+        <input type="text" id="editor-name" placeholder="Name">
+        
+        <span class="menu-label">Fill Style</span>
+        <div class="editor-row">
+            <button id="edit-btn-white" class="editor-btn" onclick="setEditorStyle('white')" title="Unaffected">⬜</button>
+            <button id="edit-btn-half" class="editor-btn" onclick="setEditorStyle('half')" title="Carrier">🌓</button>
+            <button id="edit-btn-black" class="editor-btn" onclick="setEditorStyle('black')" title="Affected">⬛</button>
+        </div>
+
+        <span class="menu-label">Markers</span>
+        <div class="editor-row">
+            <button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()">⊘ Slash</button>
+            <button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()">↙️ Index</button>
+        </div>
+
+        <button onclick="closeEditor()" style="width:100%; margin-top:5px; background:#2196f3; color:white; border:none;">Done</button>
+    </div>
+
+    <!-- Context Menu (Right Click backup) -->
+    <div id="context-menu" oncontextmenu="return false;">
+        <div id="menu-node-options" class="menu-group">
+            <span class="menu-label">Quick Actions</span>
+            <div class="menu-row">
+                <button id="ctx-btn-white" class="style-btn" onclick="setShapeFill('white')">⬜</button>
+                <button id="ctx-btn-half" class="style-btn" onclick="setShapeFill('half')">🌓</button>
+                <button id="ctx-btn-black" class="style-btn" onclick="setShapeFill('black')">⬛</button>
+            </div>
+            <div class="menu-row">
+                <button id="ctx-btn-deceased" class="style-btn" onclick="toggleDeceased()">⊘</button>
+                <button id="ctx-btn-proband" class="style-btn" onclick="toggleProband()">↙️</button>
+            </div>
+        </div>
+        <div id="menu-line-options" class="menu-group" style="display:none;">
+            <span class="menu-label">Line Style</span>
+            <div class="menu-row">
+                <button id="ctx-btn-sep" class="style-btn" onclick="toggleSeparated()">⫽</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="instructions">
+        <b>Connect:</b> Link mode > Tap shape to shape/line<br>
+        <b>Edit:</b> Double-tap<br>
+        "Enjoy easy pedigree by Wichku😎"
+    </div>
+
+    <div id="container"></div>
+
+    <script>
+        const GRID_SIZE = 80;
+        const SHAPE_SIZE = 40;
+        const DARK_GREY = '#444444'; 
+        const toolbarEl = document.getElementById('toolbar');
+        const VIRTUAL_SIZE = 10000; // Large drawing area
+
+        function getStageDims() {
+            return { width: window.innerWidth, height: window.innerHeight - toolbarEl.offsetHeight };
+        }
+        const dims = getStageDims();
+
+        const stage = new Konva.Stage({ container: 'container', width: dims.width, height: dims.height });
+        const layer = new Konva.Layer();
+        const gridLayer = new Konva.Layer();
+        const dragLayer = new Konva.Layer(); 
+        stage.add(gridLayer); stage.add(layer); stage.add(dragLayer);
+
+        function drawGrid() {
+            gridLayer.destroyChildren();
+            const start = -VIRTUAL_SIZE / 2;
+            const end = VIRTUAL_SIZE / 2;
+            for (let x = start; x <= end; x += GRID_SIZE) {
+                gridLayer.add(new Konva.Line({ points: [x, start, x, end], stroke: '#e0e0e0', strokeWidth: 1, dash: [4, 4] }));
+            }
+            for (let y = start; y <= end; y += GRID_SIZE) {
+                gridLayer.add(new Konva.Line({ points: [start, y, end, y], stroke: '#e0e0e0', strokeWidth: 1, dash: [4, 4] }));
+            }
+            gridLayer.add(new Konva.Circle({ x: 0, y: 0, radius: 3, fill: '#ccc' }));
+        }
+        drawGrid();
+        
+        stage.x(dims.width/2);
+        stage.y(dims.height/2);
+
+        let isConnectMode = false, idCounter = 1;
+        let selectedNodes = [], selectedLine = null, connections = [], historyStack = [], redoStack = [];
+        let isSelecting = false, selectionStart = {x:0,y:0};
+        const selectionRect = new Konva.Rect({ fill: 'rgba(33, 150, 243, 0.2)', stroke: '#2196f3', visible: false });
+        dragLayer.add(selectionRect);
+
+        // --- ZOOM & PAN LOGIC ---
+        let lastCenter = null;
+        let lastDist = 0;
+
+        stage.on('touchmove', function (e) {
+            const touch1 = e.evt.touches[0];
+            const touch2 = e.evt.touches[1];
+            if (touch1 && touch2) {
+                e.evt.preventDefault();
+                if(isSelecting) { isSelecting=false; selectionRect.visible(false); }
+                if(stage.isDragging()) stage.stopDrag();
+
+                const p1 = { x: touch1.clientX, y: touch1.clientY };
+                const p2 = { x: touch2.clientX, y: touch2.clientY };
+
+                if (!lastCenter) { lastCenter = getCenter(p1, p2); return; }
+                const newCenter = getCenter(p1, p2);
+                const dist = getDistance(p1, p2);
+
+                if (!lastDist) lastDist = dist;
+
+                const pointTo = {
+                    x: (newCenter.x - stage.x()) / stage.scaleX(),
+                    y: (newCenter.y - stage.y()) / stage.scaleX(),
+                };
+
+                const scale = stage.scaleX() * (dist / lastDist);
+                stage.scale({ x: scale, y: scale });
+
+                const dx = newCenter.x - lastCenter.x;
+                const dy = newCenter.y - lastCenter.y;
+
+                const newPos = { x: newCenter.x - pointTo.x * scale + dx, y: newCenter.y - pointTo.y * scale + dy };
+                stage.position(newPos);
+                lastDist = dist;
+                lastCenter = newCenter;
+            }
+        });
+
+        stage.on('touchend', function () { lastDist = 0; lastCenter = null; });
+
+        stage.on('wheel', (e) => {
+            e.evt.preventDefault();
+            const scaleBy = 1.1;
+            const oldScale = stage.scaleX();
+            const pointer = stage.getPointerPosition();
+            const mousePointTo = { x: (pointer.x - stage.x()) / oldScale, y: (pointer.y - stage.y()) / oldScale };
+            const direction = e.evt.deltaY > 0 ? -1 : 1; 
+            const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+            if (newScale < 0.1 || newScale > 5) return;
+            stage.scale({ x: newScale, y: newScale });
+            const newPos = { x: pointer.x - mousePointTo.x * newScale, y: pointer.y - mousePointTo.y * newScale };
+            stage.position(newPos);
+        });
+
+        function getDistance(p1, p2) { return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2)); }
+        function getCenter(p1, p2) { return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 }; }
+
+        function saveHistory() {
+            redoStack = []; 
+            const state = JSON.stringify({
+                idCounter, 
+                nodes: layer.find('.person-group').map(g => ({
+                    id: g.id(), x: g.x(), y: g.y(), type: g.getAttr('personType'), name: g.findOne('.label-text').text(),
+                    fillType: g.getAttr('fillType')||'white', isProband: g.getAttr('isProband'), isDeceased: g.getAttr('isDeceased')
+                })),
+                connections: connections.map(c => ({
+                    id: c.id, type: c.type, p1Id: c.p1Id, p2Id: c.p2Id, parentConnId: c.parentConnId, childId: c.childId, isSeparated: c.isSeparated
+                }))
+            });
+            historyStack.push(state); if(historyStack.length>20) historyStack.shift();
+        }
+
+        function undo() { if(historyStack.length){ const s=historyStack.pop(); redoStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }
+        function redo() { if(redoStack.length){ const s=redoStack.pop(); historyStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }
+        function serializeState() { return { idCounter, nodes: layer.find('.person-group').map(g=>({id:g.id(),x:g.x(),y:g.y(),type:g.getAttr('personType'),name:g.findOne('.label-text').text(),fillType:g.getAttr('fillType'),isProband:g.getAttr('isProband'),isDeceased:g.getAttr('isDeceased')})), connections: connections.map(c=>({id:c.id,type:c.type,p1Id:c.p1Id,p2Id:c.p2Id,parentConnId:c.parentConnId,childId:c.childId,isSeparated:c.isSeparated})) }; }
+
+        function loadState(state) {
+            layer.destroyChildren(); connections=[]; clearSelection(); hideContextMenu(); closeEditor();
+            idCounter = state.idCounter;
+            state.nodes.forEach(d=>createNode(d.x,d.y,d.type,d.id,d.name,d.fillType,d.isProband,d.isDeceased));
+            state.connections.filter(c=>c.type==='marriage').forEach(c=>createMarriage(layer.findOne('#'+c.p1Id),layer.findOne('#'+c.p2Id),c.id,false,c.isSeparated));
+            state.connections.filter(c=>c.type==='descent').forEach(c=>{
+                const p=connections.find(x=>x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);
+                if(p&&ch) createDescent(p,ch,c.id,false);
+            });
+            layer.draw();
+        }
+
+        function findEmptyPosition() {
+            const transform = stage.getAbsoluteTransform().copy().invert();
+            const topLeft = transform.point({ x: 0, y: 0 });
+            const bottomRight = transform.point({ x: stage.width(), y: stage.height() });
+            const startX = Math.round(topLeft.x / GRID_SIZE) * GRID_SIZE;
+            const startY = Math.round(topLeft.y / GRID_SIZE) * GRID_SIZE;
+            const endX = Math.round(bottomRight.x / GRID_SIZE) * GRID_SIZE;
+            const endY = Math.round(bottomRight.y / GRID_SIZE) * GRID_SIZE;
+            const centerX = (startX + endX) / 2;
+            const centerY = (startY + endY) / 2;
+            const range = 5; 
+            const cxGrid = Math.round(centerX/GRID_SIZE);
+            const cyGrid = Math.round(centerY/GRID_SIZE);
+            for(let r=0; r<range*2; r++) { 
+                for(let x=-r; x<=r; x++) {
+                    for(let y=-r; y<=r; y++) {
+                        const tx=(cxGrid+x)*GRID_SIZE, ty=(cyGrid+y)*GRID_SIZE;
+                        if(!layer.find('.person-group').some(n=>{ const dx=n.x()-tx, dy=n.y()-ty; return Math.sqrt(dx*dx+dy*dy)<GRID_SIZE/2; })) return {x:tx, y:ty};
+                    }
+                }
+            }
+            return {x:centerX, y:centerY};
+        }
+
+        function addPersonAction(t) { saveHistory(); const p=findEmptyPosition(); createNode(p.x, p.y, t, 'node-'+idCounter++, '', 'white', false, false); }
+        
+        function deleteSelectedAction() { 
+            if(selectedNodes.length || selectedLine) { 
+                saveHistory(); 
+                selectedNodes.forEach(n => deleteNode(n));
+                if(selectedLine) {
+                    const conn = getAssociatedConn(selectedLine);
+                    if (conn) deleteConnection(conn);
+                }
+                selectedNodes = [];
+                selectedLine = null;
+                hideContextMenu();
+                closeEditor();
+            }
+        }
+
+        function clearCanvasAction() { saveHistory(); layer.destroyChildren(); connections=[]; idCounter=1; clearSelection(); }
+
+        function createNode(x, y, type, id, name, fill, isProband, isDeceased) {
+            const grp = new Konva.Group({
+                x, y, draggable: true, name: 'person-group', id,
+                personType: type, fillType: fill, isProband, isDeceased,
+                dragBoundFunc: pos => {
+                    const scale = stage.scaleX();
+                    const sx = stage.x();
+                    const sy = stage.y();
+                    const dx = Math.round(((pos.x - sx) / scale) / GRID_SIZE) * GRID_SIZE;
+                    const dy = Math.round(((pos.y - sy) / scale) / GRID_SIZE) * GRID_SIZE;
+                    return { x: dx * scale + sx, y: dy * scale + sy };
+                }
+            });
+            const size=SHAPE_SIZE;
+            const props = { stroke:'black', strokeWidth:2, name:'shape-body', shadowColor:'black', shadowBlur:2, shadowOpacity:0.1 };
+            const shape = type==='male' ? new Konva.Rect({...props, width:size, height:size, offsetX:size/2, offsetY:size/2}) : new Konva.Circle({...props, radius:size/2});
+            
+            const arrow = new Konva.Arrow({ points:[-35,35,-15,15], pointerLength:8, pointerWidth:8, fill:'black', stroke:'black', strokeWidth:2, name:'proband-arrow', visible:isProband });
+            const slash = new Konva.Line({ points:[-24,24,24,-24], stroke:'black', strokeWidth:2, name:'deceased-slash', visible:isDeceased });
+            const label = new Konva.Text({ text:name, fontSize:12, fontFamily:'Arial', fill:'#555', y:size/2+8, width:100, offsetX:50, align:'center', name:'label-text' });
+
+            grp.add(shape, slash, arrow, label);
+            applyFillStyle(shape, fill);
+
+            grp.on('dragstart', (e) => {
+                hideContextMenu(); closeEditor();
+                if(!isSelected(grp) && !e.evt.shiftKey) selectSingle(grp);
+                saveHistory(); selectedNodes.forEach(n => { n.sdx=n.x(); n.sdy=n.y(); });
+            });
+            grp.on('dragmove', (e) => {
+                const dx=e.target.x()-e.target.sdx, dy=e.target.y()-e.target.sdy;
+                selectedNodes.forEach(n => { if(n!==e.target) { n.x(n.sdx+dx); n.y(n.sdy+dy); } });
+                updateAllConnections();
+            });
+            grp.on('click tap', (e) => { e.cancelBubble=true; handleNodeClick(grp, e); });
+            grp.on('dblclick dbltap', () => { hideContextMenu(); showNodeEditor(grp); });
+            grp.on('contextmenu', (e) => { e.evt.preventDefault(); if(!isSelected(grp)) selectSingle(grp); showContextMenu(e, 'node'); });
+            
+            layer.add(grp); return grp;
+        }
+
+        function createMarriage(p1, p2, id=Date.now(), save=true, isSeparated=false) {
+            if(save) saveHistory();
+            const line = new Konva.Line({ stroke:'black', strokeWidth:2 });
+            const hit = new Konva.Line({ stroke:'transparent', strokeWidth:20, name:'link-hit-area', listening:true });
+            const slash = new Konva.Line({ points:[0,0,0,0], stroke:'black', strokeWidth:2, visible:isSeparated });
+            
+            setupLineEvents(hit, line);
+            layer.add(line, slash, hit); line.moveToBottom(); slash.moveToBottom(); hit.moveToBottom();
+            connections.push({ type:'marriage', id, p1Id:p1.id(), p2Id:p2.id(), line, hitLine:hit, slash, isSeparated });
+            updateAllConnections();
+        }
+        function createDescent(parent, child, id=Date.now(), save=true) {
+            if(save) saveHistory();
+            const line = new Konva.Line({ stroke:'black', strokeWidth:2 });
+            const hit = new Konva.Line({ stroke:'transparent', strokeWidth:15, name:'link-hit-area', listening:true });
+            setupLineEvents(hit, line);
+            layer.add(line, hit); line.moveToBottom(); hit.moveToBottom();
+            connections.push({ type:'descent', id, parentConnId:parent.id, childId:child.id(), line, hitLine:hit });
+            updateAllConnections();
+        }
+        function setupLineEvents(hit, vis) {
+            hit.on('mouseover', () => { document.body.style.cursor='pointer'; vis.strokeWidth(4); });
+            hit.on('mouseout', () => { document.body.style.cursor='default'; if(selectedLine!==hit) vis.strokeWidth(2); });
+            hit.on('click tap', function(e) { e.cancelBubble=true; hideContextMenu(); if(isConnectMode) handleConnectionLogic(this); else selectLine(this); });
+            hit.on('dblclick dbltap', function(e) {
+                e.cancelBubble = true;
+                const c = getAssociatedConn(this);
+                if(c && c.type === 'marriage') {
+                    saveHistory();
+                    c.isSeparated = !c.isSeparated;
+                    c.slash.visible(c.isSeparated);
+                    layer.draw();
+                }
+            });
+            hit.on('contextmenu', function(e) { e.evt.preventDefault(); if(getAssociatedConn(this).type==='marriage'){ selectLine(this); showContextMenu(e, 'line'); } });
+        }
+
+        function getAssociatedConn(h) { return connections.find(c => c.hitLine===h); }
+        function updateAllConnections() {
+            connections.filter(c => c.type==='marriage').forEach(c => {
+                const p1=layer.findOne('#'+c.p1Id), p2=layer.findOne('#'+c.p2Id);
+                if(!p1||!p2) return;
+                c.line.points([p1.x(),p1.y(),p2.x(),p2.y()]); c.hitLine.points([p1.x(),p1.y(),p2.x(),p2.y()]);
+                c.midX=(p1.x()+p2.x())/2; c.midY=(p1.y()+p2.y())/2;
+                if(c.slash) { c.slash.points([c.midX-6,c.midY+12,c.midX+6,c.midY-12]); c.slash.visible(c.isSeparated); }
+            });
+            connections.filter(c => c.type==='descent').forEach(c => {
+                const p=connections.find(x=>x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);
+                if(!p||!ch) return;
+                let turnY = (p.midY + ch.y()) / 2;
+                if (Math.abs(ch.y() - p.midY) >= GRID_SIZE * 2) {
+                    turnY = p.midY + (GRID_SIZE / 2);
+                }
+                const pts=[p.midX,p.midY,p.midX,turnY,ch.x(),turnY,ch.x(),ch.y()];
+                c.line.points(pts); c.hitLine.points(pts);
+            });
+        }
+
+        function deleteNode(n) {
+            const nid=n.id(), toDel=[];
+            connections.forEach(c => { if((c.childId===nid)||(c.p1Id===nid||c.p2Id===nid)) toDel.push(c); });
+            toDel.forEach(c => deleteConnection(c)); n.destroy(); layer.draw();
+        }
+        function deleteConnection(c) {
+            if(c.type==='marriage') connections.filter(d=>d.parentConnId===c.id).forEach(deleteConnection);
+            c.line.destroy(); c.hitLine.destroy(); if(c.slash) c.slash.destroy();
+            connections = connections.filter(x=>x!==c); layer.draw();
+        }
+
+        const editor = document.getElementById('node-editor');
+        const editorName = document.getElementById('editor-name');
+        let editingNode = null;
+
+        function showNodeEditor(node) {
+            editingNode = node;
+            editorName.value = node.findOne('.label-text').text();
+            
+            const shapePos = node.getAbsolutePosition();
+            const stageBox = stage.container().getBoundingClientRect();
+            
+            let left = stageBox.left + shapePos.x - 100; 
+            let top = stageBox.top + shapePos.y + 60;
+            
+            if (left < 10) left = 10;
+            if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
+            if (top + 200 > window.innerHeight) top = stageBox.top + shapePos.y - 210; 
+
+            editor.style.left = left + 'px';
+            editor.style.top = top + 'px';
+            editor.style.display = 'flex';
+            editorName.focus();
+
+            // Highlight buttons based on node state
+            updateEditorButtons(node);
+        }
+
+        function updateEditorButtons(node) {
+            const fill = node.getAttr('fillType') || 'white';
+            const isDeceased = node.getAttr('isDeceased') || false;
+            const isProband = node.getAttr('isProband') || false;
+
+            // Reset Fill
+            ['edit-btn-white', 'edit-btn-half', 'edit-btn-black'].forEach(id => document.getElementById(id).classList.remove('active'));
+            // Set Active Fill
+            if (fill === 'white') document.getElementById('edit-btn-white').classList.add('active');
+            else if (fill === 'half') document.getElementById('edit-btn-half').classList.add('active');
+            else if (fill === 'black') document.getElementById('edit-btn-black').classList.add('active');
+
+            // Set Markers
+            const btnDec = document.getElementById('edit-btn-deceased');
+            isDeceased ? btnDec.classList.add('active') : btnDec.classList.remove('active');
+
+            const btnProb = document.getElementById('edit-btn-proband');
+            isProband ? btnProb.classList.add('active') : btnProb.classList.remove('active');
+        }
+
+        function closeEditor() {
+            if (editingNode) {
+                saveHistory();
+                editingNode.findOne('.label-text').text(editorName.value);
+            }
+            editor.style.display = 'none';
+            editingNode = null;
+        }
+        editorName.addEventListener("keypress", (e) => { if(e.key==="Enter") closeEditor(); });
+
+        function setEditorStyle(t) { 
+            if(editingNode) { 
+                saveHistory(); 
+                editingNode.setAttr('fillType',t); 
+                applyFillStyle(editingNode.findOne('.shape-body'), t); 
+                updateEditorButtons(editingNode); 
+                layer.draw(); 
+            } 
+        }
+        function toggleEditorDeceased() { 
+            if(editingNode) { 
+                saveHistory(); 
+                const s=editingNode.findOne('.deceased-slash'); 
+                s.visible(!s.visible()); 
+                editingNode.setAttr('isDeceased', s.visible()); 
+                updateEditorButtons(editingNode); 
+                layer.draw(); 
+            } 
+        }
+        function toggleEditorProband() { 
+            if(editingNode) { 
+                saveHistory(); 
+                const a=editingNode.findOne('.proband-arrow'); 
+                a.visible(!a.visible()); 
+                editingNode.setAttr('isProband', a.visible()); 
+                updateEditorButtons(editingNode); 
+                layer.draw(); 
+            } 
+        }
+
+        function isSelected(n) { return selectedNodes.includes(n); }
+        function selectSingle(n) { clearSelection(); selectedNodes=[n]; highlightNodes(); }
+        function selectMultiple(ns) { clearSelection(); selectedNodes=ns; highlightNodes(); }
+        function highlightNodes() { selectedNodes.forEach(n => { const s = n.findOne('.shape-body'); if(s) s.stroke('#2196f3').strokeWidth(3); }); }
+        
+        function clearSelection() { 
+            selectedNodes.forEach(n => { 
+                if (n.getParent()) {
+                    const s = n.findOne('.shape-body');
+                    if(s) s.stroke('black').strokeWidth(2);
+                }
+            }); 
+            selectedNodes=[]; 
+            if(selectedLine){
+                const conn = getAssociatedConn(selectedLine);
+                if(conn && conn.line) conn.line.stroke('black'); 
+                selectedLine=null;
+            } 
+        }
+
+        function selectLine(h) { clearSelection(); selectedLine=h; getAssociatedConn(h).line.stroke('#2196f3'); }
+        
+        function handleNodeClick(node, e) {
+            if(isConnectMode) handleConnectionLogic(node);
+            else if(e.evt.shiftKey) { isSelected(node)?(selectedNodes=selectedNodes.filter(n=>n!==node),node.findOne('.shape-body').stroke('black').strokeWidth(2)):(selectedNodes.push(node),highlightNodes()); }
+            else if(!isSelected(node)) selectSingle(node);
+        }
+        function handleConnectionLogic(obj) {
+            const isNode=obj.nodeType==='Group', isLine=obj.name()==='link-hit-area';
+            if(selectedNodes.length && isLine) {
+                const c = getAssociatedConn(obj);
+                if(c) {
+                    const v = selectedNodes.filter(n => !connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===n.id()));
+                    if(v.length) { saveHistory(); v.forEach(n => createDescent(c,n,Date.now()+Math.random(),false)); }
+                    clearSelection(); return;
+                }
+            }
+            let src = selectedNodes[0] || selectedLine;
+            if(!src) { isNode?selectSingle(obj):selectLine(obj); }
+            else {
+                const sNode=src.nodeType==='Group', sLine=src.name&&src.name()==='link-hit-area';
+                if(sNode&&isNode&&src!==obj) { if(!connections.some(c=>c.type==='marriage'&&((c.p1Id===src.id()&&c.p2Id===obj.id())||(c.p1Id===obj.id()&&c.p2Id===src.id())))) createMarriage(src,obj); }
+                else if(sLine&&isNode) { const c=getAssociatedConn(src); if(!connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===obj.id())) createDescent(c,obj); }
+                else if(sNode&&isLine) { const c=getAssociatedConn(obj); if(!connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===src.id())) createDescent(c,src); }
+                clearSelection();
+            }
+        }
+
+        const menu=document.getElementById('context-menu'), nOpts=document.getElementById('menu-node-options'), lOpts=document.getElementById('menu-line-options');
+        function showContextMenu(e, type) { 
+            menu.style.display='flex'; menu.style.top=e.evt.clientY+'px'; menu.style.left=e.evt.clientX+'px'; 
+            nOpts.style.display=type==='node'?'flex':'none'; lOpts.style.display=type==='line'?'flex':'none'; 
+            
+            // Highlight buttons in Context Menu
+            if (type === 'node' && selectedNodes.length === 1) {
+                const node = selectedNodes[0];
+                updateContextMenuButtons(node);
+            }
+            if (type === 'line' && selectedLine) {
+                updateContextLineButtons(selectedLine);
+            }
+        }
+
+        function updateContextMenuButtons(node) {
+            const fill = node.getAttr('fillType') || 'white';
+            const isDeceased = node.getAttr('isDeceased') || false;
+            const isProband = node.getAttr('isProband') || false;
+
+            ['ctx-btn-white', 'ctx-btn-half', 'ctx-btn-black'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if (fill === 'white') document.getElementById('ctx-btn-white').classList.add('active');
+            else if (fill === 'half') document.getElementById('ctx-btn-half').classList.add('active');
+            else if (fill === 'black') document.getElementById('ctx-btn-black').classList.add('active');
+
+            const btnDec = document.getElementById('ctx-btn-deceased');
+            isDeceased ? btnDec.classList.add('active') : btnDec.classList.remove('active');
+
+            const btnProb = document.getElementById('ctx-btn-proband');
+            isProband ? btnProb.classList.add('active') : btnProb.classList.remove('active');
+        }
+
+        function updateContextLineButtons(line) {
+            const conn = getAssociatedConn(line);
+            const btnSep = document.getElementById('ctx-btn-sep');
+            if (conn && conn.isSeparated) btnSep.classList.add('active');
+            else btnSep.classList.remove('active');
+        }
+
+        function hideContextMenu() { menu.style.display='none'; }
+        
+        function setShapeFill(t) { if(selectedNodes.length){ saveHistory(); selectedNodes[0].setAttr('fillType',t); applyFillStyle(selectedNodes[0].findOne('.shape-body'),t); hideContextMenu(); } }
+        function toggleProband() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],a=n.findOne('.proband-arrow'); a.visible(!a.visible()); n.setAttr('isProband',a.visible()); hideContextMenu(); } }
+        function toggleDeceased() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],s=n.findOne('.deceased-slash'); s.visible(!s.visible()); n.setAttr('isDeceased',s.visible()); hideContextMenu(); } }
+        function toggleSeparated() { if(selectedLine){ const c=getAssociatedConn(selectedLine); if(c.type==='marriage'){ saveHistory(); c.isSeparated=!c.isSeparated; c.slash.visible(c.isSeparated); hideContextMenu(); } } }
+
+        function applyFillStyle(s, t) {
+            if(t==='white') { s.fill('white'); s.fillPriority('color'); }
+            else if(t==='black') { s.fill(DARK_GREY); s.fillPriority('color'); }
+            else { 
+                let sx=-20, ex=20; if(s.getClassName()==='Rect') { sx=0; ex=40; }
+                s.fillLinearGradientStartPoint({x:sx,y:0}); s.fillLinearGradientEndPoint({x:ex,y:0});
+                s.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); s.fillPriority('linear-gradient');
+            }
+        }
+
+        function toggleConnectMode() {
+            isConnectMode = !isConnectMode;
+            const btn = document.getElementById('btn-connect');
+            clearSelection(); hideContextMenu(); closeEditor();
+            if(isConnectMode) { btn.innerHTML = "🔗 Link Mode: <b>ON</b>"; btn.classList.add('active'); document.body.style.cursor = "crosshair"; }
+            else { btn.innerHTML = "🔗 Link Mode: <b>OFF</b>"; btn.classList.remove('active'); document.body.style.cursor = "default"; }
+        }
+
+        function downloadImage() {
+            gridLayer.hide(); dragLayer.hide();
+            const link=document.createElement('a'); link.download='pedigree.png';
+            link.href=stage.toDataURL({ pixelRatio:2 });
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            gridLayer.show(); dragLayer.show();
+        }
+
+        stage.on('mousedown touchstart', (e) => {
+            hideContextMenu(); closeEditor();
+            if(e.target===stage && e.evt.touches && e.evt.touches.length > 1) return; // Ignore if 2 fingers (Pan)
+
+            if(e.target===stage) {
+                e.evt.preventDefault(); isSelecting=true;
+                // Use RELATIVE pointer for selection to work with zoom/pan
+                const ptr=stage.getRelativePointerPosition(); 
+                selectionStart={x:ptr.x,y:ptr.y};
+                selectionRect.visible(true); selectionRect.width(0); selectionRect.height(0); selectionRect.position(selectionStart);
+                clearSelection();
+            }
+        });
+        stage.on('mousemove touchmove', (e) => {
+            if(!isSelecting) return;
+            const ptr=stage.getRelativePointerPosition();
+            const x=Math.min(selectionStart.x,ptr.x), y=Math.min(selectionStart.y,ptr.y), w=Math.abs(ptr.x-selectionStart.x), h=Math.abs(ptr.y-selectionStart.y);
+            selectionRect.position({x,y}); selectionRect.width(w); selectionRect.height(h);
+        });
+        stage.on('mouseup touchend', (e) => {
+            if(isSelecting) {
+                isSelecting=false; selectionRect.visible(false);
+                const box=selectionRect.getClientRect();
+                const captured=layer.find('.person-group').filter(n=>Konva.Util.haveIntersection(box,n.getClientRect()));
+                if(captured.length) selectMultiple(captured);
+            }
+        });
+
+        window.addEventListener('resize', () => { const d=getStageDims(); stage.width(d.width); stage.height(d.height); drawGrid(); });
+    </script>
 </body>
 </html>

@@ -102,10 +102,9 @@
 
     <!-- Node Editor (Double Tap) -->
     <div id="node-editor">
-        <span class="menu-label">Name</span>
+        <!-- Removed Name Label -->
         <input type="text" id="editor-name" placeholder="Name">
         
-        <span class="menu-label">Fill Style</span>
         <div class="editor-row">
             <button id="edit-btn-white" class="editor-btn" onclick="setEditorStyle('white')" title="Unaffected">
                 <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
@@ -125,13 +124,11 @@
             </button>
         </div>
 
-        <span class="menu-label">Markers</span>
         <div class="editor-row">
             <button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()">⊘ Dead</button>
             <button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()">↗︎</button>
         </div>
-
-        <button onclick="closeEditor()" style="width:100%; margin-top:5px; background:#2196f3; color:white; border:none;">Done</button>
+        <!-- Done button removed -->
     </div>
 
     <!-- Context Menu (Right Click backup) -->
@@ -351,7 +348,7 @@
                 act(1500, () => playTutorial(2));
             }
             else if (page === 3) {
-                desc.innerText = "3. Double-tap shape to edit Style, Double-tap line for marriage status"; 
+                desc.innerText = "3. Double-tap to edit Style"; 
                 let m = drawTNode(250, 100, 'male', '', 'white'); 
                 tutLayer.add(curs); curs.position({x:200, y:200}); curs.moveToTop();
 
@@ -361,35 +358,57 @@
                 let editorGroup;
                 act(400, () => {
                     editorGroup = new Konva.Group({x:140, y:60}); 
-                    const w = 220, h = 180;
+                    const w = 220, h = 144; // Adjusted height for removed label
+                    
                     const bg = new Konva.Rect({width:w, height:h, fill:'white', stroke:'#ccc', cornerRadius:12, shadowBlur:15, shadowOpacity:0.2});
-                    const lblName = new Konva.Text({text:"Name", x:12, y:12, fontSize:11, fill:'#666', fontStyle:'bold'});
-                    const inputName = new Konva.Rect({x:12, y:28, width:196, height:30, stroke:'#ccc', cornerRadius:4});
-                    const txtName = new Konva.Text({text:"Name", x:20, y:37, fontSize:14, fill:'#999'});
-                    const lblStyle = new Konva.Text({text:"Fill Style", x:12, y:68, fontSize:11, fill:'#666', fontStyle:'bold'});
-                    const btnY = 85, btnW = 60, btnH = 35, gap = 8;
+                    
+                    const inputName = new Konva.Rect({x:12, y:12, width:196, height:30, stroke:'#ccc', cornerRadius:4});
+                    const txtName = new Konva.Text({text:"Name", x:20, y:21, fontSize:14, fill:'#999'});
+
+                    // Buttons y coordinates shifted up
+                    // Input bottom y=42. Gap=10. Next y=52. Height=35.
+                    const btnY = 52; 
+                    const btnW = 60, btnH = 35, gap = 8;
                     const btnWhite = new Konva.Rect({x:12, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconWhite = new Konva.Rect({x:12+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, stroke:'black', strokeWidth:2, fill:'white'});
+                    
                     const btnHalf = new Konva.Rect({x:12+btnW+gap, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconHalfBg = new Konva.Rect({x:12+btnW+gap+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, stroke:'black', strokeWidth:2, fill:'white'});
                     const iconHalfFill = new Konva.Rect({x:12+btnW+gap+(btnW-20)/2, y:btnY+(btnH-20)/2, width:10, height:20, fill:'#444444'});
+
                     const btnBlack = new Konva.Rect({x:12+(btnW+gap)*2, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconBlack = new Konva.Rect({x:12+(btnW+gap)*2+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, fill:'#444444', stroke:'black', strokeWidth:2});
-                    const lblMarker = new Konva.Text({text:"Markers", x:12, y:130, fontSize:11, fill:'#666', fontStyle:'bold'});
-                    const mBtnY = 145, mBtnW = 94;
+
+                    // Markers y=87 + 10 = 97. Height=35.
+                    const mBtnY = 97; 
+                    const mBtnW = 94; // (196-8)/2
                     const btnSlash = new Konva.Rect({x:12, y:mBtnY, width:mBtnW, height:btnH, stroke:'#ccc', cornerRadius:4});
-                    const txtSlash = new Konva.Text({text:"⊘ Dead", x:12, width:mBtnW, y:mBtnY+10, align:'center', fontSize:12});
+                    const txtSlash = new Konva.Text({text:"⊘ Dead", x:12, width:mBtnW, y:mBtnY+12, align:'center', fontSize:12});
+
                     const btnIndex = new Konva.Rect({x:12+mBtnW+gap, y:mBtnY, width:mBtnW, height:btnH, stroke:'#ccc', cornerRadius:4});
-                    const txtIndex = new Konva.Text({text:"↗︎", x:12+mBtnW+gap, width:mBtnW, y:mBtnY+10, align:'center', fontSize:14});
-                    editorGroup.add(bg, lblName, inputName, txtName, lblStyle, btnWhite, iconWhite, btnHalf, iconHalfBg, iconHalfFill, btnBlack, iconBlack, lblMarker, btnSlash, txtSlash, btnIndex, txtIndex);
+                    const txtIndex = new Konva.Text({text:"↗︎", x:12+mBtnW+gap, width:mBtnW, y:mBtnY+12, align:'center', fontSize:14});
+
+                    editorGroup.add(bg, inputName, txtName, btnWhite, iconWhite, btnHalf, iconHalfBg, iconHalfFill, btnBlack, iconBlack, btnSlash, txtSlash, btnIndex, txtIndex);
+                    
                     tutLayer.add(editorGroup); curs.moveToTop();
                 });
 
-                act(500, () => curs.to({x:250, y:162, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:250,y:162,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
-                act(500, () => curs.to({x:199, y:222, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:199,y:222,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
-                act(500, () => { if(editorGroup) editorGroup.destroy(); });
+                // Click Half (btnHalf center x ~ 12+60+8+30 = 110, y ~ 52+17=69. Relative x=140+110=250, y=60+69=129)
+                act(500, () => curs.to({x:250, y:129, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:250,y:129,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                
+                // Click Slash (btnSlash center x ~ 12+47=59, y ~ 97+17=114. Relative x=140+59=199, y=60+114=174)
+                act(500, () => curs.to({x:199, y:174, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:199,y:174,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                
+                // Click Outside (Simulate closing)
+                act(500, () => curs.to({x:400, y:200, duration:0.5})); // Move cursor away
+                act(600, () => { 
+                    const r = new Konva.Circle({x:400,y:200,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); 
+                    tutLayer.add(r); r.to({opacity:0, duration:0.2}); 
+                    if(editorGroup) editorGroup.destroy(); 
+                });
+
                 act(1500, () => playTutorial(3));
             }
         }

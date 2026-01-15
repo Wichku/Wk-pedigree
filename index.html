@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wk Easy Pedigree</title>
+    <title>Pedigree Builder V23 - Google Style Icons</title>
     <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }
@@ -87,9 +87,24 @@
                 <circle cx="12" cy="12" r="10" fill="white" stroke="black" stroke-width="2"/>
             </svg>
         </button>
+        <button title="Add Triangle" onclick="addPersonAction('triangle')">
+            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
+                <polygon points="12,2 22,22 2,22" fill="white" stroke="black" stroke-width="2"/>
+            </svg>
+        </button>
         <div class="sep"></div>
-        <button title="Undo" onclick="undo()">↩️</button>
-        <button title="Redo" onclick="redo()">↪️</button>
+        <button title="Undo" onclick="undo()">
+            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
+                <path d="M9 14L4 9l5-5" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+        <button title="Redo" onclick="redo()">
+            <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
+                <path d="M15 14l5-5-5-5" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
         <div class="sep"></div>
         <button class="danger text-btn" onclick="deleteSelectedAction()">🗑️</button>
         <div class="sep"></div>
@@ -358,16 +373,13 @@
                 let editorGroup;
                 act(400, () => {
                     editorGroup = new Konva.Group({x:140, y:60}); 
-                    const w = 220, h = 144; // Adjusted height for removed label
-                    
+                    const w = 220, h = 160; 
                     const bg = new Konva.Rect({width:w, height:h, fill:'white', stroke:'#ccc', cornerRadius:12, shadowBlur:15, shadowOpacity:0.2});
                     
-                    const inputName = new Konva.Rect({x:12, y:12, width:196, height:30, stroke:'#ccc', cornerRadius:4});
-                    const txtName = new Konva.Text({text:"Name", x:20, y:21, fontSize:14, fill:'#999'});
+                    const inputName = new Konva.Rect({x:12, y:28, width:196, height:30, stroke:'#ccc', cornerRadius:4});
+                    const txtName = new Konva.Text({text:"Name", x:20, y:37, fontSize:14, fill:'#999'});
 
-                    // Buttons y coordinates shifted up
-                    // Input bottom y=42. Gap=10. Next y=52. Height=35.
-                    const btnY = 52; 
+                    const btnY = 68; 
                     const btnW = 60, btnH = 35, gap = 8;
                     const btnWhite = new Konva.Rect({x:12, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconWhite = new Konva.Rect({x:12+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, stroke:'black', strokeWidth:2, fill:'white'});
@@ -379,9 +391,8 @@
                     const btnBlack = new Konva.Rect({x:12+(btnW+gap)*2, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconBlack = new Konva.Rect({x:12+(btnW+gap)*2+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, fill:'#444444', stroke:'black', strokeWidth:2});
 
-                    // Markers y=87 + 10 = 97. Height=35.
-                    const mBtnY = 97; 
-                    const mBtnW = 94; // (196-8)/2
+                    const mBtnY = 113; 
+                    const mBtnW = 94; 
                     const btnSlash = new Konva.Rect({x:12, y:mBtnY, width:mBtnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const txtSlash = new Konva.Text({text:"⊘ Dead", x:12, width:mBtnW, y:mBtnY+12, align:'center', fontSize:12});
 
@@ -393,16 +404,13 @@
                     tutLayer.add(editorGroup); curs.moveToTop();
                 });
 
-                // Click Half (btnHalf center x ~ 12+60+8+30 = 110, y ~ 52+17=69. Relative x=140+110=250, y=60+69=129)
-                act(500, () => curs.to({x:250, y:129, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:250,y:129,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                act(500, () => curs.to({x:250, y:145, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:250,y:145,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
                 
-                // Click Slash (btnSlash center x ~ 12+47=59, y ~ 97+17=114. Relative x=140+59=199, y=60+114=174)
-                act(500, () => curs.to({x:199, y:174, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:199,y:174,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                act(500, () => curs.to({x:199, y:190, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:199,y:190,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
                 
-                // Click Outside (Simulate closing)
-                act(500, () => curs.to({x:400, y:200, duration:0.5})); // Move cursor away
+                act(500, () => curs.to({x:400, y:200, duration:0.5})); 
                 act(600, () => { 
                     const r = new Konva.Circle({x:400,y:200,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); 
                     tutLayer.add(r); r.to({opacity:0, duration:0.2}); 
@@ -564,7 +572,15 @@
             });
             const size=SHAPE_SIZE;
             const props = { stroke:'black', strokeWidth:2, name:'shape-body', shadowColor:'black', shadowBlur:2, shadowOpacity:0.1 };
-            const shape = type==='male' ? new Konva.Rect({...props, width:size, height:size, offsetX:size/2, offsetY:size/2}) : new Konva.Circle({...props, radius:size/2});
+            
+            let shape;
+            if (type === 'male') {
+                shape = new Konva.Rect({ ...props, width: size, height: size, offsetX: size/2, offsetY: size/2 });
+            } else if (type === 'female') {
+                shape = new Konva.Circle({ ...props, radius: size/2 });
+            } else {
+                shape = new Konva.RegularPolygon({ ...props, sides: 3, radius: 24 });
+            }
             
             const arrow = new Konva.Arrow({ points:[-35,35,-15,15], pointerLength:8, pointerWidth:8, fill:'black', stroke:'black', strokeWidth:2, name:'proband-arrow', visible:isProband });
             const slash = new Konva.Line({ points:[-24,24,24,-24], stroke:'black', strokeWidth:2, name:'deceased-slash', visible:isDeceased });
@@ -865,7 +881,11 @@
             if(t==='white') { s.fill('white'); s.fillPriority('color'); }
             else if(t==='black') { s.fill(DARK_GREY); s.fillPriority('color'); }
             else { 
-                let sx=-20, ex=20; if(s.getClassName()==='Rect') { sx=0; ex=40; }
+                let sx=-20, ex=20; 
+                // Fix for Rect vs Circle vs Polygon coords
+                if (s.getClassName() === 'Rect') { sx=0; ex=40; }
+                if (s.getClassName() === 'RegularPolygon') { sx=-20; ex=20; }
+                
                 s.fillLinearGradientStartPoint({x:sx,y:0}); s.fillLinearGradientEndPoint({x:ex,y:0});
                 s.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); s.fillPriority('linear-gradient');
             }

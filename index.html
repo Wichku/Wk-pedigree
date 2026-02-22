@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pedigree Builder V23 - Google Style Icons</title>
+    <title>Pedigree Builder V30</title>
     <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }
@@ -13,7 +13,7 @@
             position: relative; width: 100%; box-sizing: border-box;
             background: white; padding: 10px 15px; border-bottom: 1px solid #ddd;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05); z-index: 10;
-            display: flex; flex-wrap: wrap; gap: 10px; align-items: center; user-select: none;
+            display: flex; flex-wrap: wrap; gap: 8px; align-items: center; user-select: none;
         }
 
         /* Context Menu (Desktop Right Click) */
@@ -23,11 +23,40 @@
             z-index: 1000; flex-direction: column; gap: 8px; align-items: flex-start; user-select: none; min-width: 120px;
         }
 
+        /* Text Toolbar */
+        #text-toolbar {
+            display: none; position: absolute; background: white; padding: 4px 8px; 
+            border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 1001; gap: 4px; align-items: center; user-select: none;
+        }
+        #text-toolbar .style-btn {
+            height: 26px; width: 26px; min-width: 26px; padding: 2px;
+        }
+
         /* Mobile/Desktop Editor (Double Click/Tap) */
         #node-editor {
             display: none; position: fixed; z-index: 1001; background: white; padding: 12px;
             border-radius: 12px; border: 1px solid #ccc; box-shadow: 0 5px 25px rgba(0,0,0,0.3);
             flex-direction: column; gap: 10px; min-width: 220px;
+        }
+
+        /* Generation Editor */
+        #gen-editor {
+            display: none; position: fixed; z-index: 1001; background: white; padding: 6px;
+            border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex-direction: row; gap: 6px; min-width: auto; align-items: center;
+        }
+        #gen-editor .editor-btn {
+            height: 32px; width: 32px; min-width: 32px; padding: 4px; flex: none;
+        }
+
+        /* Floating Text Area Editor */
+        #text-editor {
+            display: none; position: absolute; z-index: 1002;
+            padding: 10px; margin: 0; border: none;
+            background: transparent; outline: none; resize: none; overflow: hidden;
+            font-family: sans-serif; font-size: 12px; box-sizing: border-box;
+            color: #000; line-height: 1.2;
         }
 
         /* Tutorial Modal */
@@ -60,8 +89,15 @@
         button.active { background-color: #e3f2fd; border-color: #2196f3; color: #0d47a1; box-shadow: inset 0 0 3px rgba(33, 150, 243, 0.2); }
         button.danger { color: #d32f2f; border-color: #ef9a9a; } button.danger:hover { background-color: #ffebee; }
         
-        button.style-btn, .editor-btn { flex: 1; padding: 8px; justify-content: center; font-size: 16px; }
-        button.text-btn { font-size: 13px; min-width: auto; }
+        button.style-btn, .editor-btn { flex: 1; padding: 8px; justify-content: center; font-size: 16px; height: 36px; }
+        button.text-btn { font-size: 13px; min-width: auto; height: 36px; }
+        
+        /* Square toolbar icons */
+        .icon-btn {
+            width: 36px; height: 36px; padding: 0; min-width: 36px; 
+            display: flex; align-items: center; justify-content: center;
+        }
+
         .sep { width: 1px; height: 20px; background: #ddd; margin: 0 2px; }
 
         /* Editor Input */
@@ -77,47 +113,68 @@
 <body>
 
     <div id="toolbar">
-        <button title="Add Male" onclick="addPersonAction('male')">
+        <button class="icon-btn" title="Add Male" onclick="addPersonAction('male')">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
                 <rect x="2" y="2" width="20" height="20" fill="white" stroke="black" stroke-width="2"/>
             </svg>
         </button>
-        <button title="Add Female" onclick="addPersonAction('female')">
+        <button class="icon-btn" title="Add Female" onclick="addPersonAction('female')">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
                 <circle cx="12" cy="12" r="10" fill="white" stroke="black" stroke-width="2"/>
             </svg>
         </button>
-        <button title="Add Triangle" onclick="addPersonAction('triangle')">
+        <button class="icon-btn" title="Add Triangle" onclick="addPersonAction('triangle')">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
                 <polygon points="12,2 22,22 2,22" fill="white" stroke="black" stroke-width="2"/>
             </svg>
         </button>
         <div class="sep"></div>
-        <button title="Undo" onclick="undo()">
+        <button class="icon-btn" title="Add Text Box" onclick="addTextAction()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </button>
+        <button class="icon-btn" title="Add Generation" onclick="addGenerationAction()" style="font-weight: 800; color: #5f6368; font-size: 13px;">
+            Gen
+        </button>
+        <div class="sep"></div>
+        <button class="icon-btn" title="Undo" onclick="undo()">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
                 <path d="M9 14L4 9l5-5" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
-        <button title="Redo" onclick="redo()">
+        <button class="icon-btn" title="Redo" onclick="redo()">
             <svg width="20" height="20" viewBox="0 0 24 24" style="vertical-align: middle;">
                 <path d="M15 14l5-5-5-5" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13" stroke="#5f6368" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         </button>
-        <div class="sep"></div>
-        <button class="danger text-btn" onclick="deleteSelectedAction()">🗑️</button>
-        <div class="sep"></div>
-        <button title="Save Image" onclick="downloadImage()">💾</button>
-        <button class="danger text-btn" onclick="clearCanvasAction()">❌ Clear</button>
+        <button class="danger icon-btn" title="Delete Selected" onclick="deleteSelectedAction()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>
+        <button class="icon-btn" title="Save Image" onclick="downloadImage()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+        </button>
+        <button id="btn-clear" class="danger text-btn" onclick="handleClearClick()">❌ Clear</button>
         
         <!-- Tutorial Button -->
         <button class="text-btn" onclick="openTutorial()" style="margin-left: auto; background: #f0f0f0; border-color: #ccc; color: #333;">❓ Tutorial</button>
     </div>
 
-    <!-- Node Editor (Double Tap) -->
-    <div id="node-editor">
-        <!-- Removed Name Label -->
+    <!-- Node Editor (Double Tap for Shapes) -->
+    <div id="node-editor" onmousedown="event.stopPropagation();" onpointerdown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
         <input type="text" id="editor-name" placeholder="Name">
         
         <div class="editor-row">
@@ -143,11 +200,40 @@
             <button id="edit-btn-deceased" class="editor-btn" onclick="toggleEditorDeceased()">⊘ Dead</button>
             <button id="edit-btn-proband" class="editor-btn" onclick="toggleEditorProband()">↗︎</button>
         </div>
-        <!-- Done button removed -->
     </div>
 
-    <!-- Context Menu (Right Click backup) -->
-    <div id="context-menu" oncontextmenu="return false;">
+    <!-- Generation Editor (Double Tap for Gen Boxes) -->
+    <div id="gen-editor" onmousedown="event.stopPropagation();" onpointerdown="event.stopPropagation();" ontouchstart="event.stopPropagation();" onclick="event.stopPropagation();">
+        <button id="gen-btn-none" class="editor-btn" onclick="setGenColor('transparent')" style="background-color: #fff; border: 1px dashed #ccc;" title="Colorless">
+            <svg width="20" height="20" viewBox="0 0 24 24"><line x1="2" y1="22" x2="22" y2="2" stroke="#ff4d4d" stroke-width="2"/></svg>
+        </button>
+        <button id="gen-btn-blue" class="editor-btn" onclick="setGenColor('#cce0ff')" style="background-color: #cce0ff;" title="Pastel Blue"></button>
+        <button id="gen-btn-green" class="editor-btn" onclick="setGenColor('#d4f0d0')" style="background-color: #d4f0d0;" title="Pastel Green"></button>
+        <button id="gen-btn-pink" class="editor-btn" onclick="setGenColor('#ffd6e5')" style="background-color: #ffd6e5;" title="Pastel Pink"></button>
+    </div>
+
+    <!-- Text Toolbar (Floating) -->
+    <div id="text-toolbar" onmousedown="if(event.target.tagName !== 'INPUT') event.preventDefault(); event.stopPropagation();" onpointerdown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
+        <span style="font-size:12px; font-weight:bold; color:#666;">Size:</span>
+        <input type="number" id="font-size-input" value="12" min="10" max="72" style="width: 40px; height: 24px; padding: 0 4px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" title="Font Size" oninput="setTextFontSize(this.value)">
+        <div class="sep"></div>
+        <button class="style-btn" onclick="setTextAlign('left')" title="Align Left">
+            <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <button class="style-btn" onclick="setTextAlign('center')" title="Align Center">
+            <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <button class="style-btn" onclick="setTextAlign('right')" title="Align Right">
+            <svg width="16" height="16" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+        </button>
+        <div class="sep"></div>
+        <button class="style-btn" onclick="toggleTextBorder()" title="Toggle Border">🔲</button>
+    </div>
+
+    <textarea id="text-editor"></textarea>
+
+    <!-- Context Menu -->
+    <div id="context-menu" oncontextmenu="return false;" onmousedown="event.stopPropagation();" onpointerdown="event.stopPropagation();" ontouchstart="event.stopPropagation();">
         <div id="menu-node-options" class="menu-group">
             <span class="menu-label">Quick Actions</span>
             <div class="menu-row">
@@ -184,7 +270,7 @@
     <!-- Tutorial Modal -->
     <div id="tutorial-modal" onclick="closeTutorial()">
         <div class="tutorial-content" onclick="event.stopPropagation()">
-            <div class="tut-title">Tutorial <span id="tut-page-num">1/3</span></div>
+            <div class="tut-title">Tutorial <span id="tut-page-num">1/5</span></div>
             <div id="tutorial-canvas-container"></div>
             <div class="tut-desc" id="tut-desc">Demonstration description here.</div>
             <div class="tut-nav">
@@ -195,9 +281,7 @@
     </div>
 
     <div id="instructions">
-        <b>Connect:</b> Tap shape to shape/line<br>
-        <b>Edit:</b> Double-tap<br>
-        "Enjoy easy pedigree by Wichku😎"
+        "Enjoy Easy-pedigree by Wichku😎"
     </div>
 
     <div id="container"></div>
@@ -215,15 +299,38 @@
         const dims = getStageDims();
 
         const stage = new Konva.Stage({ container: 'container', width: dims.width, height: dims.height });
+        const bgLayer = new Konva.Layer({ listening: false }); // Render painted grids underneath
+        const gridLayer = new Konva.Layer({ listening: false }); // Disable listening so touch events hit stage cleanly
         const layer = new Konva.Layer();
-        const gridLayer = new Konva.Layer();
         const dragLayer = new Konva.Layer(); 
-        stage.add(gridLayer); stage.add(layer); stage.add(dragLayer);
+        
+        stage.add(gridLayer); stage.add(bgLayer); stage.add(layer); stage.add(dragLayer);
+
+        // --- Text Box Transformer ---
+        const textTransformer = new Konva.Transformer({
+            nodes: [],
+            enabledAnchors: ['bottom-right'],
+            rotateEnabled: false, 
+            keepRatio: false, // Disabled aspect ratio locking for free stretch
+            borderStroke: '#2196f3',
+            anchorStroke: '#2196f3',
+            anchorFill: 'white',
+            anchorSize: 24, // Increased size for easier mobile drag
+            anchorCornerRadius: 12,
+            padding: 15, // Pushes anchor far outside the DOM textarea to prevent mobile selection overlap
+            boundBoxFunc: (oldBox, newBox) => {
+                if (newBox.width < 50) newBox.width = 50;
+                if (newBox.height < 30) newBox.height = 30;
+                return newBox;
+            }
+        });
+        layer.add(textTransformer);
 
         function drawGrid() {
             gridLayer.destroyChildren();
-            const start = -VIRTUAL_SIZE / 2;
-            const end = VIRTUAL_SIZE / 2;
+            // Ensure grid lines are perfectly synced to 0, 80, 160...
+            const start = Math.floor((-VIRTUAL_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
+            const end = Math.floor((VIRTUAL_SIZE / 2) / GRID_SIZE) * GRID_SIZE;
             for (let x = start; x <= end; x += GRID_SIZE) {
                 gridLayer.add(new Konva.Line({ points: [x, start, x, end], stroke: '#e0e0e0', strokeWidth: 1, dash: [4, 4] }));
             }
@@ -242,6 +349,47 @@
         let isSelecting = false, selectionStart = {x:0,y:0};
         const selectionRect = new Konva.Rect({ fill: 'rgba(33, 150, 243, 0.2)', stroke: '#2196f3', visible: false });
         dragLayer.add(selectionRect);
+
+        // --- SHARED DRAG STATE (MULTIPLE NODES) ---
+        function initDragState() {
+            selectedNodes.forEach(n => {
+                n.sdx = n.x();
+                n.sdy = n.y();
+                if (n.name() === 'gen-group') {
+                    n.startPaintedGrids = JSON.parse(JSON.stringify(n.getAttr('paintedGrids') || []));
+                }
+            });
+        }
+
+        function handleDragMove(e) {
+            const dx = e.target.x() - e.target.sdx;
+            const dy = e.target.y() - e.target.sdy;
+            
+            let genMoved = false;
+            selectedNodes.forEach(n => {
+                if(n !== e.target) { 
+                    n.x(n.sdx + dx); 
+                    n.y(n.sdy + dy); 
+                }
+                if (n.name() === 'gen-group') {
+                    const startGrids = n.startPaintedGrids || [];
+                    n.setAttr('paintedGrids', startGrids.map(g => ({ x: g.x + dx, y: g.y + dy })));
+                    genMoved = true;
+                }
+            });
+            updateAllConnections();
+            
+            if (e.target.name() === 'text-box-group' || selectedNodes.includes(editingTextGroup)) {
+                if (editingTextGroup) {
+                    positionTextToolbar();
+                    const pos = editingTextGroup.getAbsolutePosition();
+                    textEditor.style.top = (pos.y + toolbarEl.offsetHeight) + 'px';
+                    textEditor.style.left = pos.x + 'px';
+                }
+            }
+            
+            if (genMoved) drawPaintedGrids();
+        }
 
         // --- TUTORIAL LOGIC ---
         let tutStage, tutLayer;
@@ -263,7 +411,7 @@
             stopTutorialAnim();
         }
 
-        function nextTutorialPage() { if(tutPage < 3) playTutorial(tutPage + 1); } 
+        function nextTutorialPage() { if(tutPage < 5) playTutorial(tutPage + 1); } 
         function prevTutorialPage() { if(tutPage > 1) playTutorial(tutPage - 1); }
 
         function stopTutorialAnim() {
@@ -275,9 +423,9 @@
         function playTutorial(page) {
             stopTutorialAnim();
             tutPage = page;
-            document.getElementById('tut-page-num').innerText = page + "/3";
+            document.getElementById('tut-page-num').innerText = page + "/5";
             document.getElementById('btn-tut-prev').style.visibility = (page === 1) ? 'hidden' : 'visible';
-            document.getElementById('btn-tut-next').style.visibility = (page === 3) ? 'hidden' : 'visible';
+            document.getElementById('btn-tut-next').style.visibility = (page === 5) ? 'hidden' : 'visible';
 
             const desc = document.getElementById('tut-desc');
             const curs = new Konva.Circle({ radius: 8, fill: 'red', opacity: 0.7, listening: false, zIndex: 999 });
@@ -288,16 +436,39 @@
             };
 
             const drawTutToolbar = () => {
+                const tg = new Konva.Group();
                 const bar = new Konva.Rect({width:500, height:40, fill:'white', stroke:'#ccc', strokeWidth:1});
-                const btnM = new Konva.Rect({x:10, y:5, width:35, height:30, stroke:'#ccc', cornerRadius:4});
-                const iconM = new Konva.Rect({x:20, y:12, width:15, height:15, stroke:'black', strokeWidth:2});
-                const btnF = new Konva.Rect({x:55, y:5, width:35, height:30, stroke:'#ccc', cornerRadius:4});
-                const iconF = new Konva.Circle({x:72.5, y:20, radius:7.5, stroke:'black', strokeWidth:2});
-                tutLayer.add(bar, btnM, iconM, btnF, iconF);
+                
+                // 30x30 buttons matched to .icon-btn styling layout
+                const btnM = new Konva.Rect({x:10, y:5, width:30, height:30, stroke:'#ccc', cornerRadius:4});
+                const iconM = new Konva.Rect({x:17.5, y:12.5, width:15, height:15, stroke:'black', strokeWidth:2});
+                
+                const btnF = new Konva.Rect({x:45, y:5, width:30, height:30, stroke:'#ccc', cornerRadius:4});
+                const iconF = new Konva.Circle({x:60, y:20, radius:7.5, stroke:'black', strokeWidth:2});
+                
+                // Text Button (Note SVG carefully centered inside 30x30 button at x:80)
+                const btnT = new Konva.Rect({x:80, y:5, width:30, height:30, stroke:'#ccc', cornerRadius:4});
+                const iconT = new Konva.Path({
+                    x: 84.5, y: 11,
+                    data: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2 L14 8 L20 8 M16 13 L8 13 M16 17 L8 17 M10 9 L8 9',
+                    stroke: '#5f6368', strokeWidth: 1.5, scaleX: 0.75, scaleY: 0.75
+                });
+                
+                // Gen Button (Text perfectly centered inside 30x30 button at x:115)
+                const btnG = new Konva.Rect({x:115, y:5, width:30, height:30, stroke:'#ccc', cornerRadius:4});
+                const iconG = new Konva.Text({
+                    x: 115, y: 14, width: 30, text:'Gen', 
+                    fontSize:12, fontWeight:'bold', fill:'#5f6368',
+                    align: 'center'
+                });
+
+                tg.add(bar, btnM, iconM, btnF, iconF, btnT, iconT, btnG, iconG);
+                tutLayer.add(tg);
+                tg.moveToTop();
             };
 
             const drawTNode = (x,y,type,name,fill,slash,text) => {
-                const grp = new Konva.Group({x,y});
+                const grp = new Konva.Group({x,y, name:'tnode'});
                 const size=40;
                 const shp = type==='male'?new Konva.Rect({width:size,height:size,offsetX:size/2,offsetY:size/2,stroke:'black',strokeWidth:2}):new Konva.Circle({radius:size/2,stroke:'black',strokeWidth:2});
                 if(fill==='half'){
@@ -306,41 +477,55 @@
                     shp.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); shp.fillPriority('linear-gradient');
                 } else if(fill==='black'){ shp.fill(DARK_GREY); } else { shp.fill('white'); }
                 const sl = new Konva.Line({points:[-24,24,24,-24],stroke:'black',strokeWidth:2,visible:!!slash});
-                const lbl = new Konva.Text({text:text||name,fontSize:12,y:25,width:100,offsetX:50,align:'center'});
+                const lbl = new Konva.Text({text:text||name,fontSize:12,y:22,width:100,offsetX:50,align:'center'});
                 grp.add(shp,sl,lbl);
                 tutLayer.add(grp);
                 return grp;
             };
             const drawTLine = (x1,y1,x2,y2, slashed) => {
                 const l = new Konva.Line({points:[x1,y1,x2,y2],stroke:'black',strokeWidth:2});
-                const sl = new Konva.Line({points:[(x1+x2)/2-6, (y1+y2)/2+12, (x1+x2)/2+6, (y1+y2)/2-12], stroke:'black', strokeWidth:2, visible:slashed});
+                const midX = (x1+x2)/2, midY = (y1+y2)/2;
+                const sl = new Konva.Group({x: midX, y: midY, visible: slashed});
+                sl.add(new Konva.Line({points:[-10, 12, 2, -12], stroke:'black', strokeWidth:2}));
+                sl.add(new Konva.Line({points:[-2, 12, 10, -12], stroke:'black', strokeWidth:2}));
                 tutLayer.add(l,sl);
                 l.moveToBottom();
+                return {l, sl};
             };
-            const highlight = (node) => { node.children[0].stroke('#2196f3'); node.children[0].strokeWidth(4); };
-            const unhighlight = () => { tutLayer.find('Group').forEach(g=> { g.children[0].stroke('black'); g.children[0].strokeWidth(2); }); };
+            const highlight = (node) => { if(node && node.children[0]) { node.children[0].stroke('#2196f3'); node.children[0].strokeWidth(4); } };
+            const unhighlight = () => { tutLayer.find('.tnode').forEach(g=> { if(g.children[0] && g.children[0].stroke) { g.children[0].stroke('black'); g.children[0].strokeWidth(2); } }); };
 
             if(page === 1) {
-                desc.innerText = "1. Add Male & Female from toolbar, then tap both to connect (Marriage).";
+                desc.innerText = "1. Add Male & Female, tap both to connect. Double tap line for separation.";
                 drawTutToolbar();
                 tutLayer.add(curs); curs.position({x:200,y:200}); curs.moveToTop();
                 
-                act(500, () => curs.to({x:27.5, y:20, duration:0.5})); 
+                let mNode, fNode;
+                act(500, () => curs.to({x:25, y:20, duration:0.5})); 
                 act(600, () => {
-                    const r = new Konva.Circle({x:27.5,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
+                    const r = new Konva.Circle({x:25,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
                     tutLayer.add(r); r.to({opacity:0, duration:0.2});
-                    drawTNode(100, 100, 'male', '', 'white'); 
+                    mNode = drawTNode(100, 100, 'male', '', 'white'); 
                 }); 
-                act(500, () => curs.to({x:72.5, y:20, duration:0.5}));
+                act(500, () => curs.to({x:60, y:20, duration:0.5}));
                 act(600, () => {
-                    const r = new Konva.Circle({x:72.5,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
+                    const r = new Konva.Circle({x:60,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
                     tutLayer.add(r); r.to({opacity:0, duration:0.2});
-                    drawTNode(250, 100, 'female', '', 'white'); 
+                    fNode = drawTNode(250, 100, 'female', '', 'white'); 
                 });
                 act(500, () => curs.to({x:100, y:100, duration:0.5})); 
-                act(600, () => { highlight(tutLayer.find('Group')[0]); const ring = new Konva.Ring({x:100,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(600, () => { highlight(mNode); const ring = new Konva.Ring({x:100,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
                 act(500, () => curs.to({x:250, y:100, duration:0.5})); 
-                act(600, () => { unhighlight(); drawTLine(100,100,250,100,false); const ring = new Konva.Ring({x:250,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                
+                let tLine;
+                act(600, () => { unhighlight(); tLine = drawTLine(100,100,250,100,false); const ring = new Konva.Ring({x:250,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                
+                // Double tap marriage line simulation
+                act(500, () => curs.to({x:175, y:100, duration:0.5}));
+                act(600, () => { const ring = new Konva.Ring({x:175,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(150, () => { const ring = new Konva.Ring({x:175,y:100,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(100, () => { tLine.sl.visible(true); }); 
+                
                 act(1500, () => playTutorial(1)); 
             } 
             else if (page === 2) {
@@ -351,13 +536,14 @@
                 drawTLine(100, 80, 250, 80, false);
                 tutLayer.add(curs); curs.position({x:200, y:200}); curs.moveToTop();
 
-                act(500, () => curs.to({x:27.5, y:20, duration:0.2}));
-                act(300, () => drawTNode(100, 200, 'male', '', 'white')); 
-                act(500, () => curs.to({x:72.5, y:20, duration:0.2}));
-                act(300, () => drawTNode(250, 200, 'female', '', 'white')); 
+                let n1, n2;
+                act(500, () => curs.to({x:25, y:20, duration:0.2}));
+                act(300, () => { n1 = drawTNode(100, 200, 'male', '', 'white'); }); 
+                act(500, () => curs.to({x:60, y:20, duration:0.2}));
+                act(300, () => { n2 = drawTNode(250, 200, 'female', '', 'white'); }); 
                 act(500, () => curs.position({x:50, y:150})); 
                 act(100, () => { const rect = new Konva.Rect({x:50,y:150,width:0,height:0,fill:'rgba(33,150,243,0.2)',stroke:'#2196f3'}); tutLayer.add(rect); rect.to({width:250, height:100, duration:0.5}); curs.to({x:300, y:250, duration:0.5}); });
-                act(600, () => { tutLayer.find('Rect').forEach(r => { if(r.fill()=='rgba(33,150,243,0.2)') r.destroy(); }); const grps = tutLayer.find('Group'); if(grps[2]) highlight(grps[2]); if(grps[3]) highlight(grps[3]); });
+                act(600, () => { tutLayer.find('Rect').forEach(r => { if(r.fill()=='rgba(33,150,243,0.2)') r.destroy(); }); highlight(n1); highlight(n2); });
                 act(500, () => curs.to({x:175, y:80, duration:0.3}));
                 act(400, () => { unhighlight(); const midY = (80+200)/2; const l1 = new Konva.Line({points:[175,80,175,midY,100,midY,100,200],stroke:'black',strokeWidth:2}); const l2 = new Konva.Line({points:[175,80,175,midY,250,midY,250,200],stroke:'black',strokeWidth:2}); tutLayer.add(l1,l2); l1.moveToBottom(); l2.moveToBottom(); });
                 act(1500, () => playTutorial(2));
@@ -365,6 +551,7 @@
             else if (page === 3) {
                 desc.innerText = "3. Double-tap to edit Style"; 
                 let m = drawTNode(250, 100, 'male', '', 'white'); 
+                drawTutToolbar();
                 tutLayer.add(curs); curs.position({x:200, y:200}); curs.moveToTop();
 
                 act(500, () => curs.to({x:250, y:100, duration:0.5}));
@@ -373,13 +560,14 @@
                 let editorGroup;
                 act(400, () => {
                     editorGroup = new Konva.Group({x:140, y:60}); 
-                    const w = 220, h = 160; 
+                    const w = 220, h = 144; 
+                    
                     const bg = new Konva.Rect({width:w, height:h, fill:'white', stroke:'#ccc', cornerRadius:12, shadowBlur:15, shadowOpacity:0.2});
                     
-                    const inputName = new Konva.Rect({x:12, y:28, width:196, height:30, stroke:'#ccc', cornerRadius:4});
-                    const txtName = new Konva.Text({text:"Name", x:20, y:37, fontSize:14, fill:'#999'});
+                    const inputName = new Konva.Rect({x:12, y:12, width:196, height:30, stroke:'#ccc', cornerRadius:4});
+                    const txtName = new Konva.Text({text:"Name", x:20, y:21, fontSize:14, fill:'#999'});
 
-                    const btnY = 68; 
+                    const btnY = 52; 
                     const btnW = 60, btnH = 35, gap = 8;
                     const btnWhite = new Konva.Rect({x:12, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconWhite = new Konva.Rect({x:12+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, stroke:'black', strokeWidth:2, fill:'white'});
@@ -391,7 +579,7 @@
                     const btnBlack = new Konva.Rect({x:12+(btnW+gap)*2, y:btnY, width:btnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const iconBlack = new Konva.Rect({x:12+(btnW+gap)*2+(btnW-20)/2, y:btnY+(btnH-20)/2, width:20, height:20, fill:'#444444', stroke:'black', strokeWidth:2});
 
-                    const mBtnY = 113; 
+                    const mBtnY = 97; 
                     const mBtnW = 94; 
                     const btnSlash = new Konva.Rect({x:12, y:mBtnY, width:mBtnW, height:btnH, stroke:'#ccc', cornerRadius:4});
                     const txtSlash = new Konva.Text({text:"⊘ Dead", x:12, width:mBtnW, y:mBtnY+12, align:'center', fontSize:12});
@@ -404,11 +592,11 @@
                     tutLayer.add(editorGroup); curs.moveToTop();
                 });
 
-                act(500, () => curs.to({x:250, y:145, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:250,y:145,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                act(500, () => curs.to({x:250, y:129, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:250,y:129,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half'); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
                 
-                act(500, () => curs.to({x:199, y:190, duration:0.5}));
-                act(600, () => { const r = new Konva.Circle({x:199,y:190,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
+                act(500, () => curs.to({x:199, y:174, duration:0.5}));
+                act(600, () => { const r = new Konva.Circle({x:199,y:174,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1}); tutLayer.add(r); r.to({opacity:0, duration:0.2}); m.destroy(); m = drawTNode(250, 100, 'male', '', 'half', true); if(editorGroup) editorGroup.moveToTop(); curs.moveToTop(); });
                 
                 act(500, () => curs.to({x:400, y:200, duration:0.5})); 
                 act(600, () => { 
@@ -418,6 +606,181 @@
                 });
 
                 act(1500, () => playTutorial(3));
+            }
+            else if (page === 4) {
+                desc.innerText = "4. Add note from tool bar, double tap to edit.";
+                drawTutToolbar();
+                tutLayer.add(curs); curs.position({x:200, y:200}); curs.moveToTop();
+                
+                // Go to text btn
+                act(500, () => curs.to({x:95, y:20, duration:0.5}));
+                let tBox;
+                act(600, () => {
+                    const r = new Konva.Circle({x:95,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
+                    tutLayer.add(r); r.to({opacity:0, duration:0.2});
+                    
+                    tBox = new Konva.Group({x:150, y:100});
+                    const tBg = new Konva.Rect({width:160, height:60, stroke:'black', strokeWidth:1, name:'tbg'});
+                    const tTxt = new Konva.Text({text:'Double click to edit...', padding:10, fontSize:12, fill:'#999'});
+                    tBox.add(tBg, tTxt);
+                    tutLayer.add(tBox);
+                    tBox.moveToBottom();
+                });
+
+                // Double tap text box
+                act(800, () => curs.to({x:230, y:130, duration:0.5}));
+                act(600, () => { const ring = new Konva.Ring({x:230,y:130,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(150, () => { const ring = new Konva.Ring({x:230,y:130,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+
+                // Show realistic text toolbar
+                let tBar;
+                act(150, () => {
+                    tBar = new Konva.Group({x:145, y:65}); // placed above the textbox accurately
+                    
+                    const tbBg = new Konva.Rect({width:170, height:30, fill:'white', stroke:'#ccc', cornerRadius:6, shadowBlur:10, shadowOpacity:0.2});
+                    const tbT1 = new Konva.Text({text:'Size:', x:8, y:10, fontSize:10, fontStyle:'bold', fill:'#666'});
+                    const tbInput = new Konva.Rect({x:35, y:4, width:30, height:22, stroke:'#ccc', cornerRadius:4});
+                    const tbT2 = new Konva.Text({text:'12', x:42, y:9, fontSize:10, fill:'#000'});
+                    const sep1 = new Konva.Line({points:[72, 6, 72, 24], stroke:'#ddd', strokeWidth:1});
+                    const iconAL = new Konva.Path({data:'M4 6h16 M4 12h10 M4 18h16', stroke:'#333', strokeWidth:2, scaleX:0.55, scaleY:0.55, x:78, y:6});
+                    const iconAC = new Konva.Path({data:'M4 6h16 M7 12h10 M4 18h16', stroke:'#333', strokeWidth:2, scaleX:0.55, scaleY:0.55, x:98, y:6});
+                    const iconAR = new Konva.Path({data:'M4 6h16 M10 12h10 M4 18h16', stroke:'#333', strokeWidth:2, scaleX:0.55, scaleY:0.55, x:118, y:6});
+                    const sep2 = new Konva.Line({points:[140, 6, 140, 24], stroke:'#ddd', strokeWidth:1});
+                    const iconBorder = new Konva.Text({text:'🔲', x:148, y:9, fontSize:11});
+                    
+                    tBar.add(tbBg, tbT1, tbInput, tbT2, sep1, iconAL, iconAC, iconAR, sep2, iconBorder);
+                    tutLayer.add(tBar);
+                    
+                    tBox.findOne('.tbg').stroke('#2196f3');
+                    tBox.findOne('.tbg').strokeWidth(2);
+                    
+                    const a1 = new Konva.Circle({x:160, y:60, radius:5, fill:'white', stroke:'#2196f3'});
+                    tBox.add(a1);
+                });
+
+                act(2500, () => playTutorial(4));
+            }
+            else if (page === 5) {
+                desc.innerText = "5. Indicate generation. Double tap to change color or select area. Double tap again to finish.";
+                
+                // Group to make sure grid stays below shapes
+                const gridGrp = new Konva.Group();
+                // Draw true 80x80 square grid layout for tutorial 5, shifted down entirely clear of toolbar (starting at Y=80)
+                for(let i=0; i<=4; i++) {
+                    gridGrp.add(new Konva.Line({points:[0, 80+i*80, 500, 80+i*80], stroke:'#e0e0e0', dash:[4,4]}));
+                    gridGrp.add(new Konva.Line({points:[20+i*80, 80, 20+i*80, 250], stroke:'#e0e0e0', dash:[4,4]}));
+                }
+                tutLayer.add(gridGrp);
+                gridGrp.moveToBottom();
+
+                // Draw existing family exactly inside shifted 80x80 cell centers
+                drawTNode(140, 120, 'male', '', 'white'); 
+                drawTNode(300, 120, 'female', '', 'white'); 
+                drawTLine(140, 120, 300, 120, false);
+                drawTNode(140, 200, 'male', '', 'white'); 
+                drawTNode(300, 200, 'female', '', 'white'); 
+                const l1 = new Konva.Line({points:[220,120,220,160,140,160,140,200],stroke:'black',strokeWidth:2}); 
+                const l2 = new Konva.Line({points:[220,120,220,160,300,160,300,200],stroke:'black',strokeWidth:2});
+                tutLayer.add(l1,l2); l1.moveToBottom(); l2.moveToBottom();
+                gridGrp.moveToBottom(); // ensure grid stays at very bottom
+
+                // Draw toolbar securely above grids
+                drawTutToolbar();
+
+                tutLayer.add(curs); curs.position({x:250, y:200}); curs.moveToTop();
+                
+                // Click Gen
+                act(500, () => curs.to({x:130, y:20, duration:0.5}));
+                let gen1;
+                act(600, () => {
+                    const r = new Konva.Circle({x:130,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
+                    tutLayer.add(r); r.to({opacity:0, duration:0.2});
+                    
+                    gen1 = new Konva.Group({x:20, y:80}); 
+                    gen1.add(new Konva.Rect({x:0, y:0, width:80, height:80, fill:'transparent', name:'gbg'})); 
+                    gen1.add(new Konva.Text({text:'I', width:80, height:80, align:'center', verticalAlign:'middle', fontSize:24, fontWeight:'bold'}));
+                    tutLayer.add(gen1);
+                });
+
+                // Click Gen again
+                act(500, () => curs.to({x:130, y:20, duration:0.2}));
+                let gen2;
+                act(300, () => {
+                    const r = new Konva.Circle({x:130,y:20,radius:15,fill:'rgba(0,0,0,0.1)',opacity:1});
+                    tutLayer.add(r); r.to({opacity:0, duration:0.2});
+                    
+                    gen2 = new Konva.Group({x:20, y:160}); 
+                    gen2.add(new Konva.Rect({x:0, y:0, width:80, height:80, fill:'transparent'})); 
+                    gen2.add(new Konva.Text({text:'II', width:80, height:80, align:'center', verticalAlign:'middle', fontSize:24, fontWeight:'bold'}));
+                    tutLayer.add(gen2);
+                });
+
+                // Double tap Gen I (center 60,120)
+                act(500, () => curs.to({x:60, y:120, duration:0.5}));
+                act(600, () => { const ring = new Konva.Ring({x:60,y:120,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(150, () => { const ring = new Konva.Ring({x:60,y:120,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                
+                // Show edit bar
+                let gBar;
+                act(100, () => {
+                    gen1.findOne('.gbg').stroke('#2196f3');
+                    gen1.findOne('.gbg').strokeWidth(2); // Solid line, NO dash
+                    
+                    gBar = new Konva.Group({x:20, y:45}); // positioned in empty space between grid y:80 and toolbar y:40
+                    const gbBg = new Konva.Rect({width:105, height:30, fill:'white', stroke:'#ccc', cornerRadius:4, shadowBlur:5, shadowOpacity:0.2});
+                    const c1 = new Konva.Rect({x:5,y:5,width:20,height:20,fill:'transparent',stroke:'#ccc'}); // colorless
+                    const c1_cross = new Konva.Line({points:[5,25, 25,5], stroke:'#ff4d4d', strokeWidth:2});
+                    const c2 = new Konva.Rect({x:30,y:5,width:20,height:20,fill:'#cce0ff'}); // blue
+                    const c3 = new Konva.Rect({x:55,y:5,width:20,height:20,fill:'#d4f0d0'}); // green
+                    const c4 = new Konva.Rect({x:80,y:5,width:20,height:20,fill:'#ffd6e5'}); // pink
+                    gBar.add(gbBg, c1, c1_cross, c2, c3, c4);
+                    tutLayer.add(gBar);
+                });
+
+                // Highlight area over row 1 - CELL 1
+                act(600, () => curs.to({x:140, y:120, duration:0.5})); 
+                act(100, () => {
+                    const ring = new Konva.Ring({x:140,y:120,innerRadius:5,outerRadius:10,fill:'red', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()});
+                    const paint1 = new Konva.Rect({x:100, y:80, width:80, height:80, fill:'rgba(33,150,243,0.1)', stroke:'#2196f3', strokeWidth:2, dash:[4,4], name:'pcell'});
+                    tutLayer.add(paint1); paint1.moveToBottom(); gridGrp.moveToBottom();
+                });
+
+                // CELL 2 (Middle)
+                act(400, () => curs.to({x:220, y:120, duration:0.3})); 
+                act(100, () => {
+                    const ring = new Konva.Ring({x:220,y:120,innerRadius:5,outerRadius:10,fill:'red', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()});
+                    const paint2 = new Konva.Rect({x:180, y:80, width:80, height:80, fill:'rgba(33,150,243,0.1)', stroke:'#2196f3', strokeWidth:2, dash:[4,4], name:'pcell'});
+                    tutLayer.add(paint2); paint2.moveToBottom(); gridGrp.moveToBottom();
+                });
+
+                // CELL 3 (Female)
+                act(400, () => curs.to({x:300, y:120, duration:0.3})); 
+                act(100, () => {
+                    const ring = new Konva.Ring({x:300,y:120,innerRadius:5,outerRadius:10,fill:'red', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()});
+                    const paint3 = new Konva.Rect({x:260, y:80, width:80, height:80, fill:'rgba(33,150,243,0.1)', stroke:'#2196f3', strokeWidth:2, dash:[4,4], name:'pcell'});
+                    tutLayer.add(paint3); paint3.moveToBottom(); gridGrp.moveToBottom();
+                });
+
+                // Change color to blue (Color picker is at gBar x:30, y:5 -> global x:50, y:50)
+                act(500, () => curs.to({x:60, y:60, duration:0.5})); 
+                act(600, () => {
+                    const ring = new Konva.Ring({x:60,y:60,innerRadius:5,outerRadius:10,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()});
+                    gen1.findOne('.gbg').fill('#cce0ff');
+                    tutLayer.find('.pcell').forEach(p => p.fill('#cce0ff'));
+                });
+
+                // Double tap Gen I to finish
+                act(500, () => curs.to({x:60, y:120, duration:0.4}));
+                act(400, () => { const ring = new Konva.Ring({x:60,y:120,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                act(150, () => { const ring = new Konva.Ring({x:60,y:120,innerRadius:10,outerRadius:15,fill:'rgba(33,150,243,0.5)', opacity:0}); tutLayer.add(ring); ring.to({opacity:1, duration:0.1, onFinish:()=>ring.destroy()}); });
+                
+                act(100, () => {
+                    gen1.findOne('.gbg').strokeEnabled(false);
+                    gBar.destroy();
+                    tutLayer.find('.pcell').forEach(r => r.strokeEnabled(false));
+                });
+
+                act(2000, () => playTutorial(5));
             }
         }
 
@@ -487,8 +850,17 @@
                     id: g.id(), x: g.x(), y: g.y(), type: g.getAttr('personType'), name: g.findOne('.label-text').text(),
                     fillType: g.getAttr('fillType')||'white', isProband: g.getAttr('isProband'), isDeceased: g.getAttr('isDeceased')
                 })),
+                textboxes: layer.find('.text-box-group').map(g => ({
+                    id: g.id(), x: g.x(), y: g.y(), width: g.width(), height: g.height(),
+                    text: g.findOne('.content-text').text(), align: g.getAttr('align'), 
+                    showBorder: g.getAttr('showBorder'), fontSize: g.findOne('.content-text').fontSize()
+                })),
+                genNodes: layer.find('.gen-group').map(g => ({
+                    id: g.id(), x: g.x(), y: g.y(), genNum: g.getAttr('genNum'),
+                    genColor: g.getAttr('genColor'), paintedGrids: g.getAttr('paintedGrids')
+                })),
                 connections: connections.map(c => ({
-                    id: c.id, type: c.type, p1Id: c.p1Id, p2Id: c.p2Id, parentConnId: c.parentConnId, childId: c.childId, slashType: c.slashType || 0
+                    id: c.id, type: c.type, p1Id: c.p1Id, p2Id: c.p2Id, parentConnId: c.parentConnId, childId: c.childId, isSeparated: c.isSeparated
                 }))
             });
             historyStack.push(state); if(historyStack.length>20) historyStack.shift();
@@ -496,17 +868,37 @@
 
         function undo() { if(historyStack.length){ const s=historyStack.pop(); redoStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }
         function redo() { if(redoStack.length){ const s=redoStack.pop(); historyStack.push(JSON.stringify(serializeState())); loadState(JSON.parse(s)); } }
-        function serializeState() { return { idCounter, nodes: layer.find('.person-group').map(g=>({id:g.id(),x:g.x(),y:g.y(),type:g.getAttr('personType'),name:g.findOne('.label-text').text(),fillType:g.getAttr('fillType'),isProband:g.getAttr('isProband'),isDeceased:g.getAttr('isDeceased')})), connections: connections.map(c=>({id:c.id,type:c.type,p1Id:c.p1Id,p2Id:c.p2Id,parentConnId:c.parentConnId,childId:c.childId,slashType:c.slashType || 0})) }; }
+        function serializeState() { 
+            return { 
+                idCounter, 
+                nodes: layer.find('.person-group').map(g=>({id:g.id(),x:g.x(),y:g.y(),type:g.getAttr('personType'),name:g.findOne('.label-text').text(),fillType:g.getAttr('fillType'),isProband:g.getAttr('isProband'),isDeceased:g.getAttr('isDeceased')})), 
+                textboxes: layer.find('.text-box-group').map(g=>({id:g.id(),x:g.x(),y:g.y(),width:g.width(),height:g.height(),text:g.findOne('.content-text').text(),align:g.getAttr('align'),showBorder:g.getAttr('showBorder'),fontSize:g.findOne('.content-text').fontSize()})),
+                genNodes: layer.find('.gen-group').map(g => ({id: g.id(), x: g.x(), y: g.y(), genNum: g.getAttr('genNum'), genColor: g.getAttr('genColor'), paintedGrids: g.getAttr('paintedGrids')})),
+                connections: connections.map(c=>({id:c.id,type:c.type,p1Id:c.p1Id,p2Id:c.p2Id,parentConnId:c.parentConnId,childId:c.childId,isSeparated:c.isSeparated})) 
+            }; 
+        }
 
         function loadState(state) {
-            layer.destroyChildren(); connections=[]; clearSelection(); hideContextMenu(); closeEditor();
+            layer.destroyChildren(); connections=[]; clearSelection(); hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
             idCounter = state.idCounter;
+            layer.add(textTransformer); 
+            
             state.nodes.forEach(d=>createNode(d.x,d.y,d.type,d.id,d.name,d.fillType,d.isProband,d.isDeceased));
-            state.connections.filter(c=>c.type==='marriage').forEach(c=>createMarriage(layer.findOne('#'+c.p1Id),layer.findOne('#'+c.p2Id),c.id,false,c.slashType));
+            
+            if (state.textboxes) {
+                state.textboxes.forEach(d=>createTextBox(d.x, d.y, d.id, d.text, d.width, d.height, d.align, d.showBorder, d.fontSize, false));
+            }
+
+            if (state.genNodes) {
+                state.genNodes.forEach(d => createGenerationNode(d.x, d.y, d.id, d.genNum, d.genColor, d.paintedGrids, false));
+            }
+
+            state.connections.filter(c=>c.type==='marriage').forEach(c=>createMarriage(layer.findOne('#'+c.p1Id),layer.findOne('#'+c.p2Id),c.id,false,c.isSeparated));
             state.connections.filter(c=>c.type==='descent').forEach(c=>{
                 const p=connections.find(x=>x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);
                 if(p&&ch) createDescent(p,ch,c.id,false);
             });
+            drawPaintedGrids();
             layer.draw();
         }
 
@@ -518,8 +910,9 @@
             const centerX = (topLeft.x + bottomRight.x) / 2;
             const centerY = (topLeft.y + bottomRight.y) / 2;
             
-            let targetX = Math.round(centerX / GRID_SIZE) * GRID_SIZE;
-            const targetY = Math.round(centerY / GRID_SIZE) * GRID_SIZE;
+            // New logic: Shapes center precisely on the grid tile 
+            let targetX = Math.floor(centerX / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+            const targetY = Math.floor(centerY / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
 
             let searchCount = 0;
             while (searchCount < 1000) { 
@@ -538,12 +931,230 @@
             return { x: targetX, y: targetY };
         }
 
+        function toRoman(num) {
+            const roman = ["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX"];
+            return roman[num] || num.toString();
+        }
+
+        // --- GENERATION BOX LOGIC ---
+
+        function addGenerationAction() {
+            saveHistory();
+            const existingGens = layer.find('.gen-group');
+            const usedNums = existingGens.map(g => g.getAttr('genNum')).sort((a,b) => a-b);
+            
+            // Find lowest unused integer > 0
+            let newGenNum = 1;
+            while(usedNums.includes(newGenNum)) newGenNum++;
+
+            let startX, startY;
+            if (newGenNum > 1) {
+                // Find the box for newGenNum - 1
+                const prevBox = existingGens.find(g => g.getAttr('genNum') === (newGenNum - 1));
+                if (prevBox) {
+                    startX = prevBox.x();
+                    startY = prevBox.y() + GRID_SIZE;
+                }
+            }
+            
+            if (startX === undefined || startY === undefined) {
+                // Top-leftmost fully visible grid on screen
+                const transform = stage.getAbsoluteTransform().copy().invert();
+                const topLeft = transform.point({ x: 0, y: 0 });
+                startX = Math.ceil(topLeft.x / GRID_SIZE) * GRID_SIZE;
+                startY = Math.ceil(topLeft.y / GRID_SIZE) * GRID_SIZE;
+            }
+            
+            createGenerationNode(startX, startY, 'gen-' + idCounter++, newGenNum, 'transparent', [], true);
+        }
+
+        function createGenerationNode(x, y, id, genNum, color, paintedGridsData, save=true) {
+            if(save) saveHistory();
+            const grp = new Konva.Group({
+                x, y, draggable: true, name: 'gen-group', id,
+                genNum: genNum, genColor: color, paintedGrids: paintedGridsData || [],
+                dragBoundFunc: pos => {
+                    const scale = stage.scaleX();
+                    const sx = stage.x();
+                    const sy = stage.y();
+                    // Genbox corners lock exactly onto cross lines
+                    const dx = Math.round(((pos.x - sx) / scale) / GRID_SIZE) * GRID_SIZE;
+                    const dy = Math.round(((pos.y - sy) / scale) / GRID_SIZE) * GRID_SIZE;
+                    return { x: dx * scale + sx, y: dy * scale + sy };
+                }
+            });
+
+            const bg = new Konva.Rect({
+                x: 0, y: 0,
+                width: GRID_SIZE, height: GRID_SIZE, fill: color,
+                name: 'gen-bg', strokeEnabled: false 
+            });
+
+            const text = new Konva.Text({
+                text: toRoman(genNum), fontSize: 24, fontWeight: 'bold',
+                width: GRID_SIZE, height: GRID_SIZE,
+                align: 'center', verticalAlign: 'middle', fill: '#333'
+            });
+
+            grp.add(bg, text);
+
+            grp.on('dragstart', (e) => { 
+                hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
+                if(!isSelected(grp) && !e.evt.shiftKey) selectSingle(grp);
+                saveHistory();
+                initDragState();
+            });
+            grp.on('dragmove', handleDragMove);
+            
+            grp.on('dblclick dbltap', (e) => { 
+                e.cancelBubble=true; 
+                if (grp.isDragging()) return;
+                hideContextMenu();
+                
+                if (editingGenNode === grp) {
+                    closeGenEditor();
+                } else {
+                    if(!isSelected(grp)) selectSingle(grp);
+                    showGenEditor(grp); 
+                }
+            });
+            
+            grp.on('click tap', (e) => { 
+                if (isPaintMode) return;
+                e.cancelBubble=true; 
+                handleNodeClick(grp, e); 
+            });
+
+            layer.add(grp);
+            drawPaintedGrids();
+            return grp;
+        }
+
+        const genEditor = document.getElementById('gen-editor');
+        let editingGenNode = null;
+        let isPaintMode = false;
+
+        function showGenEditor(node) {
+            editingGenNode = node;
+            isPaintMode = true;
+            updateGenEditorButtons(node);
+
+            const shapePos = node.getAbsolutePosition();
+            const stageBox = stage.container().getBoundingClientRect();
+            
+            let left = stageBox.left + shapePos.x; 
+            let top = stageBox.top + shapePos.y - 50; // Position closely above the GenBox
+            
+            // Prevent clipping off top of screen/toolbar
+            if (top < toolbarEl.offsetHeight + 10) {
+                top = stageBox.top + shapePos.y + (GRID_SIZE * stage.scaleY()) + 10;
+            }
+
+            if (left + 180 > window.innerWidth) left = window.innerWidth - 180;
+
+            genEditor.style.left = left + 'px';
+            genEditor.style.top = top + 'px';
+            genEditor.style.display = 'flex';
+            document.body.style.cursor = 'crosshair';
+            drawPaintedGrids(); // Updates UI highlight state
+        }
+
+        function closeGenEditor() {
+            genEditor.style.display = 'none';
+            editingGenNode = null;
+            isPaintMode = false;
+            document.body.style.cursor = 'default';
+            drawPaintedGrids();
+        }
+
+        function setGenColor(color) {
+            if(editingGenNode) {
+                saveHistory();
+                editingGenNode.setAttr('genColor', color);
+                editingGenNode.findOne('.gen-bg').fill(color);
+                updateGenEditorButtons(editingGenNode);
+                drawPaintedGrids();
+                layer.draw();
+            }
+        }
+
+        function updateGenEditorButtons(node) {
+            if (!node) return;
+            const color = node.getAttr('genColor');
+            ['gen-btn-none', 'gen-btn-blue', 'gen-btn-green', 'gen-btn-pink'].forEach(id => document.getElementById(id).classList.remove('active'));
+            if(color === 'transparent') document.getElementById('gen-btn-none').classList.add('active');
+            if(color === '#cce0ff') document.getElementById('gen-btn-blue').classList.add('active');
+            if(color === '#d4f0d0') document.getElementById('gen-btn-green').classList.add('active');
+            if(color === '#ffd6e5') document.getElementById('gen-btn-pink').classList.add('active');
+        }
+
+        function drawPaintedGrids() {
+            bgLayer.destroyChildren();
+            const gens = layer.find('.gen-group');
+            gens.forEach(gen => {
+                const isEditing = (gen === editingGenNode);
+                const color = gen.getAttr('genColor');
+                
+                // Only skip transparent rendering completely if NOT editing
+                if (color === 'transparent' && !isEditing) return;
+
+                const grids = gen.getAttr('paintedGrids') || [];
+                grids.forEach(g => {
+                    let fillCol = color;
+                    if (color === 'transparent') {
+                        fillCol = isEditing ? 'rgba(33, 150, 243, 0.1)' : 'transparent';
+                    }
+                    
+                    bgLayer.add(new Konva.Rect({
+                        x: g.x, y: g.y, width: GRID_SIZE, height: GRID_SIZE, 
+                        fill: fillCol,
+                        stroke: isEditing ? '#2196f3' : null,
+                        strokeWidth: isEditing ? 2 : 0,
+                        dash: isEditing ? [4, 4] : null,
+                        name: 'painted-cell',
+                        listening: false
+                    }));
+                });
+            });
+            bgLayer.draw();
+        }
+
         function addPersonAction(t) { saveHistory(); const p=findEmptyPosition(); createNode(p.x, p.y, t, 'node-'+idCounter++, '', 'white', false, false); }
         
+        function addTextAction() {
+            saveHistory();
+            const transform = stage.getAbsoluteTransform().copy().invert();
+            const center = transform.point({ x: stage.width() / 2, y: stage.height() / 2 });
+            const x = Math.floor(center.x / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+            const y = Math.floor(center.y / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+            createTextBox(x, y, 'text-' + idCounter++, 'Double click to edit...', 160, 60, 'left', true, 12, false);
+        }
+
         function deleteSelectedAction() { 
+            // Safe teardown of editors if they belong to a deleted node
+            if (editingTextGroup && (selectedNodes.includes(editingTextGroup) || selectedNodes.length === 0)) {
+                textEditor.style.display = 'none';
+                textEditor.oninput = null;
+                editingTextGroup = null;
+                document.getElementById('text-toolbar').style.display = 'none';
+            }
+            if (editingShapeNode && (selectedNodes.includes(editingShapeNode) || selectedNodes.length === 0)) {
+                editor.style.display = 'none';
+                editingShapeNode = null;
+            }
+            if (editingGenNode && (selectedNodes.includes(editingGenNode) || selectedNodes.length === 0)) {
+                closeGenEditor();
+            }
+
             if(selectedNodes.length || selectedLine) { 
                 saveHistory(); 
-                selectedNodes.forEach(n => deleteNode(n));
+                selectedNodes.forEach(n => {
+                    if (n.name() === 'text-box-group' || n.name() === 'gen-group') {
+                        n.destroy();
+                    } else {
+                        deleteNode(n);
+                    }
+                });
                 if(selectedLine) {
                     const conn = getAssociatedConn(selectedLine);
                     if (conn) deleteConnection(conn);
@@ -551,11 +1162,324 @@
                 selectedNodes = [];
                 selectedLine = null;
                 hideContextMenu();
-                closeEditor();
+                clearSelection();
+                drawPaintedGrids();
+                layer.draw();
             }
         }
 
-        function clearCanvasAction() { saveHistory(); layer.destroyChildren(); connections=[]; idCounter=1; clearSelection(); }
+        let clearTimer = null;
+        function handleClearClick() {
+            const btn = document.getElementById('btn-clear');
+            if (!clearTimer) {
+                btn.innerText = 'Confirm';
+                btn.style.backgroundColor = '#d32f2f';
+                btn.style.color = 'white';
+                clearTimer = setTimeout(() => {
+                    btn.innerText = '❌ Clear';
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                    clearTimer = null;
+                }, 3000);
+            } else {
+                clearCanvasAction();
+                btn.innerText = '❌ Clear';
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+                clearTimeout(clearTimer);
+                clearTimer = null;
+            }
+        }
+
+        function clearCanvasAction() { 
+            if (editingTextGroup) {
+                textEditor.style.display = 'none';
+                textEditor.oninput = null;
+                editingTextGroup = null;
+                document.getElementById('text-toolbar').style.display = 'none';
+            }
+            if (editingShapeNode) {
+                editor.style.display = 'none';
+                editingShapeNode = null;
+            }
+            if (editingGenNode) closeGenEditor();
+
+            saveHistory(); 
+            layer.destroyChildren(); 
+            layer.add(textTransformer); 
+            bgLayer.destroyChildren(); bgLayer.draw();
+            connections=[]; 
+            idCounter=1; 
+            clearSelection(); 
+        }
+
+        // --- TEXT BOX LOGIC ---
+
+        function createTextBox(x, y, id, textContent, width, height, align, showBorder, fontSize = 12, save=true) {
+            if(save) saveHistory();
+
+            const group = new Konva.Group({
+                x, y, width, height, draggable: true, name: 'text-box-group', id,
+                align: align, showBorder: showBorder, fontSize: fontSize,
+                dragBoundFunc: function(pos) {
+                    const shapeNode = selectedNodes.find(n => n.name() === 'person-group' || n.name() === 'gen-group');
+                    if (shapeNode && this.sdx !== undefined && shapeNode.sdx !== undefined) {
+                        const scale = stage.scaleX();
+                        const sx = stage.x();
+                        const sy = stage.y();
+                        
+                        const propRelTextX = (pos.x - sx) / scale;
+                        const propRelTextY = (pos.y - sy) / scale;
+                        
+                        const dx = propRelTextX - this.sdx;
+                        const dy = propRelTextY - this.sdy;
+                        
+                        const propRelShapeX = shapeNode.sdx + dx;
+                        const propRelShapeY = shapeNode.sdy + dy;
+                        
+                        let snappedRelShapeX, snappedRelShapeY;
+                        if (shapeNode.name() === 'person-group') {
+                            snappedRelShapeX = Math.floor(propRelShapeX / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+                            snappedRelShapeY = Math.floor(propRelShapeY / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+                        } else {
+                            snappedRelShapeX = Math.round(propRelShapeX / GRID_SIZE) * GRID_SIZE;
+                            snappedRelShapeY = Math.round(propRelShapeY / GRID_SIZE) * GRID_SIZE;
+                        }
+                        
+                        const snappedDx = snappedRelShapeX - shapeNode.sdx;
+                        const snappedDy = snappedRelShapeY - shapeNode.sdy;
+                        
+                        const finalRelTextX = this.sdx + snappedDx;
+                        const finalRelTextY = this.sdy + snappedDy;
+                        
+                        return {
+                            x: finalRelTextX * scale + sx,
+                            y: finalRelTextY * scale + sy
+                        };
+                    }
+                    return pos; // Free movement for text boxes when dragged alone
+                }
+            });
+
+            const rect = new Konva.Rect({
+                width, height, stroke: showBorder ? 'black' : null, strokeWidth: 1, 
+                fill: 'rgba(0,0,0,0)', // Invisible but clickable background
+                name: 'text-bg'
+            });
+
+            const isPlaceholder = textContent === 'Double click to edit...';
+
+            const text = new Konva.Text({
+                text: textContent, width, height, padding: 10, align: align, 
+                verticalAlign: 'top', fontSize: fontSize, fontFamily: 'sans-serif', 
+                fill: isPlaceholder ? '#999' : 'black', name: 'content-text', wrap: 'word', lineHeight: 1.2
+            });
+
+            group.add(rect, text);
+
+            group.on('transform', () => {
+                const sx = group.scaleX();
+                const sy = group.scaleY();
+                const w = Math.max(50, group.width() * sx);
+                const h = Math.max(30, group.height() * sy);
+                
+                group.scaleX(1); group.scaleY(1);
+                group.width(w); group.height(h);
+
+                rect.width(w); rect.height(h);
+                text.width(w); text.height(h);
+                
+                if (editingTextGroup === group) {
+                    textEditor.style.width = (w * stage.scaleX()) + 'px';
+                    textEditor.style.height = (h * stage.scaleY()) + 'px';
+                }
+                positionTextToolbar(group);
+            });
+
+            group.on('dragstart', (e) => {
+                hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
+                if(!isSelected(group) && !e.evt.shiftKey) selectSingle(group);
+                saveHistory(); 
+                initDragState();
+            });
+
+            group.on('dragmove', handleDragMove);
+
+            group.on('click tap', (e) => { 
+                if (isPaintMode) return;
+                e.cancelBubble=true; handleNodeClick(group, e); 
+            });
+            group.on('dblclick dbltap', (e) => { 
+                e.cancelBubble=true;
+                if (isPaintMode || group.isDragging()) return; // Prevent edit mode on drag
+                hideContextMenu(); 
+                if(!isSelected(group)) selectSingle(group); // Ensure selected
+                showTextEditor(group); 
+            });
+            
+            layer.add(group);
+            return group;
+        }
+
+        const textEditor = document.getElementById('text-editor');
+        let editingTextGroup = null;
+
+        function showTextEditor(group) {
+            editingTextGroup = group;
+            const textNode = group.findOne('.content-text');
+            const rectNode = group.findOne('.text-bg');
+            
+            textNode.hide(); 
+            // We do NOT hide the textTransformer so it remains resizable
+            layer.draw();
+
+            let currentText = textNode.text();
+            textEditor.value = currentText === 'Double click to edit...' ? '' : currentText;
+            textEditor.placeholder = 'Double click to edit...';
+
+            textEditor.style.textAlign = group.getAttr('align');
+            textEditor.style.fontSize = (textNode.fontSize() * stage.scaleX()) + 'px';
+            textEditor.style.padding = (10 * stage.scaleX()) + 'px'; 
+            textEditor.style.color = 'black'; // Ensure user types in black
+            
+            const pos = group.getAbsolutePosition();
+            textEditor.style.top = (pos.y + toolbarEl.offsetHeight) + 'px';
+            textEditor.style.left = pos.x + 'px';
+            textEditor.style.width = (group.width() * stage.scaleX()) + 'px';
+            textEditor.style.height = (group.height() * stage.scaleY()) + 'px';
+            textEditor.style.display = 'block';
+            textEditor.focus();
+
+            positionTextToolbar(group);
+            
+            textEditor.oninput = function() {
+                textNode.text(textEditor.value);
+                // Calculate required height based on wrap width and current content
+                const reqHeight = textNode.height(); 
+                // Ensure minimum bounds constraint
+                const minH = Math.max(reqHeight, 30);
+                
+                if (minH > group.height()) {
+                    group.height(minH);
+                    rectNode.height(minH);
+                    textNode.height(minH);
+                    textEditor.style.height = (minH * stage.scaleY()) + 'px';
+                    positionTextToolbar(group);
+                    textTransformer.forceUpdate(); 
+                }
+            };
+        }
+
+        function closeTextEditor() {
+            if (!editingTextGroup) return;
+            // Prevent close operations on nodes that are already deleted or unmounted
+            if (editingTextGroup.isDestroyed || !editingTextGroup.getParent()) {
+                textEditor.style.display = 'none';
+                textEditor.oninput = null;
+                editingTextGroup = null;
+                document.getElementById('text-toolbar').style.display = 'none';
+                return;
+            }
+
+            saveHistory();
+            const textNode = editingTextGroup.findOne('.content-text');
+            
+            let val = textEditor.value.trim();
+            if (val === '') {
+                val = 'Double click to edit...';
+                textNode.fill('#999');
+            } else {
+                textNode.fill('black');
+            }
+            
+            textNode.text(val);
+            
+            // Final resize catch just in case
+            const reqHeight = textNode.height();
+            if (reqHeight > editingTextGroup.height()) {
+                editingTextGroup.height(reqHeight);
+                editingTextGroup.findOne('.text-bg').height(reqHeight);
+                textNode.height(reqHeight);
+            }
+
+            textNode.show();
+            if (selectedNodes.includes(editingTextGroup)) textTransformer.show();
+            
+            textEditor.style.display = 'none';
+            textEditor.oninput = null; // Clean up
+            editingTextGroup = null;
+            positionTextToolbar(); // will hide since editingTextGroup is null
+            textTransformer.forceUpdate();
+            layer.draw();
+        }
+
+        // Robust blur handler to prevent menu clicks from breaking focus
+        function handleTextEditorBlur() {
+            setTimeout(() => {
+                const active = document.activeElement;
+                if (active === textEditor || (active && active.closest('#text-toolbar'))) {
+                    return; // Focus is still within editor or toolbar
+                }
+                closeTextEditor();
+            }, 10);
+        }
+
+        textEditor.addEventListener('blur', handleTextEditorBlur);
+        document.getElementById('font-size-input').addEventListener('blur', handleTextEditorBlur);
+
+        function positionTextToolbar() {
+            if (editingTextGroup) {
+                const tb = document.getElementById('text-toolbar');
+                tb.style.display = 'flex';
+                const pos = editingTextGroup.getAbsolutePosition();
+                tb.style.left = pos.x + 'px';
+                tb.style.top = Math.max(10, pos.y + toolbarEl.offsetHeight - tb.offsetHeight - 8) + 'px';
+                
+                const textNode = editingTextGroup.findOne('.content-text');
+                if (textNode) document.getElementById('font-size-input').value = textNode.fontSize();
+            } else {
+                document.getElementById('text-toolbar').style.display = 'none';
+            }
+        }
+
+        function setTextFontSize(size) {
+            if (editingTextGroup) {
+                saveHistory();
+                const numSize = Number(size) || 12;
+                const textNode = editingTextGroup.findOne('.content-text');
+                textNode.fontSize(numSize);
+                editingTextGroup.setAttr('fontSize', numSize);
+                
+                textEditor.style.fontSize = (textNode.fontSize() * stage.scaleX()) + 'px';
+                if(textEditor.oninput) textEditor.oninput(); // Trigger auto-resize check
+                
+                layer.draw();
+            }
+        }
+
+        function setTextAlign(align) {
+            if (editingTextGroup) {
+                saveHistory();
+                editingTextGroup.setAttr('align', align);
+                editingTextGroup.findOne('.content-text').align(align);
+                textEditor.style.textAlign = align;
+                layer.draw();
+            }
+        }
+
+        function toggleTextBorder() {
+            let targetGroup = editingTextGroup || (selectedNodes.length === 1 && selectedNodes[0].name() === 'text-box-group' ? selectedNodes[0] : null);
+            
+            if (targetGroup) {
+                saveHistory();
+                const current = targetGroup.getAttr('showBorder');
+                targetGroup.setAttr('showBorder', !current);
+                targetGroup.findOne('.text-bg').stroke(!current ? 'black' : null);
+                layer.draw();
+            }
+        }
+
+        // --- SHAPE NODE LOGIC ---
 
         function createNode(x, y, type, id, name, fill, isProband, isDeceased) {
             const grp = new Konva.Group({
@@ -565,8 +1489,9 @@
                     const scale = stage.scaleX();
                     const sx = stage.x();
                     const sy = stage.y();
-                    const dx = Math.round(((pos.x - sx) / scale) / GRID_SIZE) * GRID_SIZE;
-                    const dy = Math.round(((pos.y - sy) / scale) / GRID_SIZE) * GRID_SIZE;
+                    // Center shape precisely on the grid tile
+                    const dx = Math.floor(((pos.x - sx) / scale) / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+                    const dy = Math.floor(((pos.y - sy) / scale) / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
                     return { x: dx * scale + sx, y: dy * scale + sy };
                 }
             });
@@ -584,44 +1509,48 @@
             
             const arrow = new Konva.Arrow({ points:[-35,35,-15,15], pointerLength:8, pointerWidth:8, fill:'black', stroke:'black', strokeWidth:2, name:'proband-arrow', visible:isProband });
             const slash = new Konva.Line({ points:[-24,24,24,-24], stroke:'black', strokeWidth:2, name:'deceased-slash', visible:isDeceased });
-            const label = new Konva.Text({ text:name, fontSize:12, fontFamily:'Arial', fill:'#555', y:size/2+8, width:100, offsetX:50, align:'center', name:'label-text' });
+            const label = new Konva.Text({ text:name, fontSize:12, fontFamily:'Arial', fill:'#555', y:size/2+2, width:100, offsetX:50, align:'center', name:'label-text' });
 
             grp.add(shape, slash, arrow, label);
             applyFillStyle(shape, fill);
 
             grp.on('dragstart', (e) => {
-                hideContextMenu(); closeEditor();
+                hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
                 if(!isSelected(grp) && !e.evt.shiftKey) selectSingle(grp);
-                saveHistory(); selectedNodes.forEach(n => { n.sdx=n.x(); n.sdy=n.y(); });
+                saveHistory(); 
+                initDragState();
             });
-            grp.on('dragmove', (e) => {
-                const dx=e.target.x()-e.target.sdx, dy=e.target.y()-e.target.sdy;
-                selectedNodes.forEach(n => { if(n!==e.target) { n.x(n.sdx+dx); n.y(n.sdy+dy); } });
-                updateAllConnections();
+            grp.on('dragmove', handleDragMove);
+            
+            grp.on('click tap', (e) => { 
+                if (isPaintMode) return;
+                e.cancelBubble=true; handleNodeClick(grp, e); 
             });
-            grp.on('click tap', (e) => { e.cancelBubble=true; handleNodeClick(grp, e); });
-            grp.on('dblclick dbltap', () => { hideContextMenu(); showNodeEditor(grp); });
-            grp.on('contextmenu', (e) => { e.evt.preventDefault(); if(!isSelected(grp)) selectSingle(grp); showContextMenu(e, 'node'); });
+            grp.on('dblclick dbltap', () => { 
+                if (isPaintMode) return;
+                hideContextMenu(); showNodeEditor(grp); 
+            });
+            grp.on('contextmenu', (e) => { 
+                if (isPaintMode) return;
+                e.evt.preventDefault(); if(!isSelected(grp)) selectSingle(grp); showContextMenu(e, 'node'); 
+            });
             
             layer.add(grp); return grp;
         }
 
-        function createMarriage(p1, p2, id=Date.now(), save=true, slashType=0) {
+        function createMarriage(p1, p2, id=Date.now(), save=true, isSeparated=false) {
             if(save) saveHistory();
             const line = new Konva.Line({ stroke:'black', strokeWidth:2 });
             const hit = new Konva.Line({ stroke:'transparent', strokeWidth:20, name:'link-hit-area', listening:true });
-            
-            const slash1 = new Konva.Line({ points:[0,0,0,0], stroke:'black', strokeWidth:2, visible:false });
-            const slash2 = new Konva.Line({ points:[0,0,0,0], stroke:'black', strokeWidth:2, visible:false });
+            const slash = new Konva.Group({ visible:isSeparated });
+            slash.add(new Konva.Line({ points:[-10, 12, 2, -12], stroke:'black', strokeWidth:2 }));
+            slash.add(new Konva.Line({ points:[-2, 12, 10, -12], stroke:'black', strokeWidth:2 }));
             
             setupLineEvents(hit, line);
-            layer.add(line, slash1, slash2, hit); 
-            line.moveToBottom(); slash1.moveToBottom(); slash2.moveToBottom(); hit.moveToBottom();
-            
-            connections.push({ type:'marriage', id, p1Id:p1.id(), p2Id:p2.id(), line, hitLine:hit, slash1, slash2, slashType });
+            layer.add(line, slash, hit); line.moveToBottom(); slash.moveToBottom(); hit.moveToBottom();
+            connections.push({ type:'marriage', id, p1Id:p1.id(), p2Id:p2.id(), line, hitLine:hit, slash, isSeparated });
             updateAllConnections();
         }
-        
         function createDescent(parent, child, id=Date.now(), save=true) {
             if(save) saveHistory();
             const line = new Konva.Line({ stroke:'black', strokeWidth:2 });
@@ -632,20 +1561,27 @@
             updateAllConnections();
         }
         function setupLineEvents(hit, vis) {
-            hit.on('mouseover', () => { document.body.style.cursor='pointer'; vis.strokeWidth(4); });
-            hit.on('mouseout', () => { document.body.style.cursor='default'; if(selectedLine!==hit) vis.strokeWidth(2); });
-            hit.on('click tap', function(e) { e.cancelBubble=true; hideContextMenu(); handleConnectionLogic(this); });
+            hit.on('mouseover', () => { if(!isPaintMode) { document.body.style.cursor='pointer'; vis.strokeWidth(4); } });
+            hit.on('mouseout', () => { if(!isPaintMode) { document.body.style.cursor='default'; if(selectedLine!==hit) vis.strokeWidth(2); } });
+            hit.on('click tap', function(e) { 
+                if (isPaintMode) return;
+                e.cancelBubble=true; hideContextMenu(); handleConnectionLogic(this); 
+            });
             hit.on('dblclick dbltap', function(e) {
+                if (isPaintMode) return;
                 e.cancelBubble = true;
                 const c = getAssociatedConn(this);
                 if(c && c.type === 'marriage') {
                     saveHistory();
-                    c.slashType = (c.slashType + 1) % 3;
-                    updateAllConnections();
+                    c.isSeparated = !c.isSeparated;
+                    c.slash.visible(c.isSeparated);
                     layer.draw();
                 }
             });
-            hit.on('contextmenu', function(e) { e.evt.preventDefault(); if(getAssociatedConn(this).type==='marriage'){ selectLine(this); showContextMenu(e, 'line'); } });
+            hit.on('contextmenu', function(e) { 
+                if (isPaintMode) return;
+                e.evt.preventDefault(); if(getAssociatedConn(this).type==='marriage'){ selectLine(this); showContextMenu(e, 'line'); } 
+            });
         }
 
         function getAssociatedConn(h) { return connections.find(c => c.hitLine===h); }
@@ -655,17 +1591,7 @@
                 if(!p1||!p2) return;
                 c.line.points([p1.x(),p1.y(),p2.x(),p2.y()]); c.hitLine.points([p1.x(),p1.y(),p2.x(),p2.y()]);
                 c.midX=(p1.x()+p2.x())/2; c.midY=(p1.y()+p2.y())/2;
-                
-                // Slash Logic
-                if (c.slashType === 1) { // Single Slash
-                    c.slash1.points([c.midX-6,c.midY+12,c.midX+6,c.midY-12]); c.slash1.visible(true);
-                    c.slash2.visible(false);
-                } else if (c.slashType === 2) { // Double Slash
-                    c.slash1.points([c.midX-9,c.midY+12,c.midX+3,c.midY-12]); c.slash1.visible(true);
-                    c.slash2.points([c.midX-3,c.midY+12,c.midX+9,c.midY-12]); c.slash2.visible(true);
-                } else {
-                    c.slash1.visible(false); c.slash2.visible(false);
-                }
+                if(c.slash) { c.slash.position({x: c.midX, y: c.midY}); c.slash.visible(c.isSeparated); }
             });
             connections.filter(c => c.type==='descent').forEach(c => {
                 const p=connections.find(x=>x.id===c.parentConnId), ch=layer.findOne('#'+c.childId);
@@ -686,18 +1612,16 @@
         }
         function deleteConnection(c) {
             if(c.type==='marriage') connections.filter(d=>d.parentConnId===c.id).forEach(deleteConnection);
-            c.line.destroy(); c.hitLine.destroy(); 
-            if(c.slash1) c.slash1.destroy();
-            if(c.slash2) c.slash2.destroy();
+            c.line.destroy(); c.hitLine.destroy(); if(c.slash) c.slash.destroy();
             connections = connections.filter(x=>x!==c); layer.draw();
         }
 
         const editor = document.getElementById('node-editor');
         const editorName = document.getElementById('editor-name');
-        let editingNode = null;
+        let editingShapeNode = null;
 
         function showNodeEditor(node) {
-            editingNode = node;
+            editingShapeNode = node;
             editorName.value = node.findOne('.label-text').text();
             
             const shapePos = node.getAbsolutePosition();
@@ -708,7 +1632,7 @@
             
             if (left < 10) left = 10;
             if (left + 220 > window.innerWidth) left = window.innerWidth - 230;
-            if (top + 200 > window.innerHeight) top = stageBox.top + shapePos.y - 210; 
+            if (top + 160 > window.innerHeight) top = stageBox.top + shapePos.y - 170; 
 
             editor.style.left = left + 'px';
             editor.style.top = top + 'px';
@@ -736,41 +1660,90 @@
         }
 
         function closeEditor() {
-            if (editingNode) {
+            if (editingShapeNode) {
                 saveHistory();
-                editingNode.findOne('.label-text').text(editorName.value);
+                editingShapeNode.findOne('.label-text').text(editorName.value);
             }
             editor.style.display = 'none';
-            editingNode = null;
+            editingShapeNode = null;
         }
         editorName.addEventListener("keypress", (e) => { if(e.key==="Enter") closeEditor(); });
+        
+        // Hide editors when clicking elsewhere or handling paint mode
+        stage.on('click tap', (e) => { 
+            hideContextMenu();
+            
+            // Handle Shape Editor Close
+            if (editingShapeNode && e.target !== stage) {
+                const clickedGroup = e.target.findAncestor('Group');
+                if (clickedGroup !== editingShapeNode) closeEditor();
+            } else if (editingShapeNode && e.target === stage) {
+                closeEditor();
+            }
+            
+            // Handle Text Editor Close
+            if (editingTextGroup && e.target === stage) {
+                closeTextEditor();
+            }
+        });
+
+        stage.on('mousedown touchstart', (e) => {
+            if(e.evt.touches && e.evt.touches.length > 1) return; // Ignore if 2 fingers (Pan)
+
+            if (isPaintMode && editingGenNode) {
+                e.evt.preventDefault();
+                const ptr = stage.getRelativePointerPosition();
+                const gx = Math.floor(ptr.x / GRID_SIZE) * GRID_SIZE;
+                const gy = Math.floor(ptr.y / GRID_SIZE) * GRID_SIZE;
+                
+                saveHistory();
+                let grids = editingGenNode.getAttr('paintedGrids') || [];
+                // Use absolute difference to prevent float rounding errors failing selection
+                const idx = grids.findIndex(g => Math.abs(g.x - gx) < 1 && Math.abs(g.y - gy) < 1);
+                if (idx > -1) { grids.splice(idx, 1); }
+                else { grids.push({x: gx, y: gy}); }
+                
+                editingGenNode.setAttr('paintedGrids', grids);
+                drawPaintedGrids();
+                return; // consume event so we don't accidentally select or close
+            }
+
+            // Prevent drag selection if in paint mode
+            if(e.target===stage && !isPaintMode) {
+                e.evt.preventDefault(); isSelecting=true;
+                const ptr=stage.getRelativePointerPosition(); 
+                selectionStart={x:ptr.x,y:ptr.y};
+                selectionRect.visible(true); selectionRect.width(0); selectionRect.height(0); selectionRect.position(selectionStart);
+                clearSelection();
+            }
+        });
 
         function setEditorStyle(t) { 
-            if(editingNode) { 
+            if(editingShapeNode) { 
                 saveHistory(); 
-                editingNode.setAttr('fillType',t); 
-                applyFillStyle(editingNode.findOne('.shape-body'), t); 
-                updateEditorButtons(editingNode); 
+                editingShapeNode.setAttr('fillType',t); 
+                applyFillStyle(editingShapeNode.findOne('.shape-body'), t); 
+                updateEditorButtons(editingShapeNode); 
                 layer.draw(); 
             } 
         }
         function toggleEditorDeceased() { 
-            if(editingNode) { 
+            if(editingShapeNode) { 
                 saveHistory(); 
-                const s=editingNode.findOne('.deceased-slash'); 
+                const s=editingShapeNode.findOne('.deceased-slash'); 
                 s.visible(!s.visible()); 
-                editingNode.setAttr('isDeceased', s.visible()); 
-                updateEditorButtons(editingNode); 
+                editingShapeNode.setAttr('isDeceased', s.visible()); 
+                updateEditorButtons(editingShapeNode); 
                 layer.draw(); 
             } 
         }
         function toggleEditorProband() { 
-            if(editingNode) { 
+            if(editingShapeNode) { 
                 saveHistory(); 
-                const a=editingNode.findOne('.proband-arrow'); 
+                const a=editingShapeNode.findOne('.proband-arrow'); 
                 a.visible(!a.visible()); 
-                editingNode.setAttr('isProband', a.visible()); 
-                updateEditorButtons(editingNode); 
+                editingShapeNode.setAttr('isProband', a.visible()); 
+                updateEditorButtons(editingShapeNode); 
                 layer.draw(); 
             } 
         }
@@ -778,16 +1751,43 @@
         function isSelected(n) { return selectedNodes.includes(n); }
         function selectSingle(n) { clearSelection(); selectedNodes=[n]; highlightNodes(); }
         function selectMultiple(ns) { clearSelection(); selectedNodes=ns; highlightNodes(); }
-        function highlightNodes() { selectedNodes.forEach(n => { const s = n.findOne('.shape-body'); if(s) s.stroke('#2196f3').strokeWidth(3); }); }
+        
+        function highlightNodes() { 
+            textTransformer.nodes([]);
+            const textNodes = [];
+
+            selectedNodes.forEach(n => { 
+                if (n.name() === 'person-group') {
+                    const s = n.findOne('.shape-body'); if(s) s.stroke('#2196f3').strokeWidth(3); 
+                } else if (n.name() === 'text-box-group') {
+                    textNodes.push(n);
+                } else if (n.name() === 'gen-group') {
+                    const s = n.findOne('.gen-bg'); 
+                    if(s) { s.stroke('#2196f3'); s.strokeWidth(3); s.strokeEnabled(true); }
+                }
+            }); 
+
+            if (textNodes.length > 0) {
+                textTransformer.nodes(textNodes);
+            }
+        }
         
         function clearSelection() { 
+            closeTextEditor(); // Automatically close editor when clicking away
+
             selectedNodes.forEach(n => { 
-                if (n.getParent()) {
+                if (n.name() === 'person-group') {
                     const s = n.findOne('.shape-body');
                     if(s) s.stroke('black').strokeWidth(2);
+                } else if (n.name() === 'gen-group') {
+                    const s = n.findOne('.gen-bg');
+                    if(s) s.strokeEnabled(false);
                 }
             }); 
             selectedNodes=[]; 
+            textTransformer.nodes([]);
+            document.getElementById('text-toolbar').style.display = 'none';
+
             if(selectedLine){
                 const conn = getAssociatedConn(selectedLine);
                 if(conn && conn.line) conn.line.stroke('black'); 
@@ -798,14 +1798,55 @@
         function selectLine(h) { clearSelection(); selectedLine=h; getAssociatedConn(h).line.stroke('#2196f3'); }
         
         function handleNodeClick(node, e) {
-            handleConnectionLogic(node);
+            // Generation nodes act like text boxes (no connecting lines)
+            if(node.name() === 'gen-group') {
+                if(e.evt.shiftKey) { 
+                    if(isSelected(node)) {
+                        selectedNodes = selectedNodes.filter(n=>n!==node);
+                        const s = node.findOne('.gen-bg');
+                        if (s) s.strokeEnabled(false);
+                    } else {
+                        selectedNodes.push(node); highlightNodes(); 
+                    }
+                }
+                else {
+                    if(!isSelected(node)) selectSingle(node);
+                }
+                return; // skip connection logic
+            }
+
+            if(isConnectMode && node.name() === 'person-group') {
+                handleConnectionLogic(node);
+                return;
+            }
+            if(!isConnectMode) {
+                if(e.evt.shiftKey) { 
+                    if(isSelected(node)) {
+                        selectedNodes = selectedNodes.filter(n=>n!==node);
+                        if(node.name() === 'person-group') {
+                            node.findOne('.shape-body').stroke('black').strokeWidth(2);
+                        } else {
+                            // Update transformer
+                            const texts = selectedNodes.filter(n => n.name() === 'text-box-group');
+                            textTransformer.nodes(texts);
+                            if(texts.length !== 1) document.getElementById('text-toolbar').style.display = 'none';
+                        }
+                    } else {
+                        selectedNodes.push(node); highlightNodes(); 
+                    }
+                }
+                else {
+                    if(!isSelected(node)) selectSingle(node);
+                }
+            }
         }
+
         function handleConnectionLogic(obj) {
-            const isNode=obj.nodeType==='Group', isLine=obj.name()==='link-hit-area';
+            const isNode=obj.nodeType==='Group' && obj.name()==='person-group', isLine=obj.name()==='link-hit-area';
             if(selectedNodes.length && isLine) {
                 const c = getAssociatedConn(obj);
                 if(c) {
-                    const v = selectedNodes.filter(n => !connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===n.id()));
+                    const v = selectedNodes.filter(n => n.name()==='person-group' && !connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===n.id()));
                     if(v.length) { saveHistory(); v.forEach(n => createDescent(c,n,Date.now()+Math.random(),false)); }
                     clearSelection(); return;
                 }
@@ -813,7 +1854,7 @@
             let src = selectedNodes[0] || selectedLine;
             if(!src) { isNode?selectSingle(obj):selectLine(obj); }
             else {
-                const sNode=src.nodeType==='Group', sLine=src.name&&src.name()==='link-hit-area';
+                const sNode=src.nodeType==='Group' && src.name()==='person-group', sLine=src.name&&src.name()==='link-hit-area';
                 if(sNode&&isNode&&src!==obj) { if(!connections.some(c=>c.type==='marriage'&&((c.p1Id===src.id()&&c.p2Id===obj.id())||(c.p1Id===obj.id()&&c.p2Id===src.id())))) createMarriage(src,obj); }
                 else if(sLine&&isNode) { const c=getAssociatedConn(src); if(!connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===obj.id())) createDescent(c,obj); }
                 else if(sNode&&isLine) { const c=getAssociatedConn(obj); if(!connections.some(x=>x.type==='descent'&&x.parentConnId===c.id&&x.childId===src.id())) createDescent(c,src); }
@@ -826,7 +1867,7 @@
             menu.style.display='flex'; menu.style.top=e.evt.clientY+'px'; menu.style.left=e.evt.clientX+'px'; 
             nOpts.style.display=type==='node'?'flex':'none'; lOpts.style.display=type==='line'?'flex':'none'; 
             
-            if (type === 'node' && selectedNodes.length === 1) {
+            if (type === 'node' && selectedNodes.length === 1 && selectedNodes[0].name() === 'person-group') {
                 const node = selectedNodes[0];
                 updateContextMenuButtons(node);
             }
@@ -855,63 +1896,36 @@
         function updateContextLineButtons(line) {
             const conn = getAssociatedConn(line);
             const btnSep = document.getElementById('ctx-btn-sep');
-            if (conn && conn.slashType > 0) btnSep.classList.add('active');
+            if (conn && conn.isSeparated) btnSep.classList.add('active');
             else btnSep.classList.remove('active');
         }
 
         function hideContextMenu() { menu.style.display='none'; }
         
-        function setShapeFill(t) { if(selectedNodes.length){ saveHistory(); selectedNodes[0].setAttr('fillType',t); applyFillStyle(selectedNodes[0].findOne('.shape-body'),t); hideContextMenu(); } }
-        function toggleProband() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],a=n.findOne('.proband-arrow'); a.visible(!a.visible()); n.setAttr('isProband',a.visible()); hideContextMenu(); } }
-        function toggleDeceased() { if(selectedNodes.length){ saveHistory(); const n=selectedNodes[0],s=n.findOne('.deceased-slash'); s.visible(!s.visible()); n.setAttr('isDeceased',s.visible()); hideContextMenu(); } }
-        function toggleSeparated() { 
-            if(selectedLine){ 
-                const c=getAssociatedConn(selectedLine); 
-                if(c.type==='marriage'){ 
-                    saveHistory(); 
-                    c.slashType = (c.slashType + 1) % 3; // Cycle 0->1->2->0
-                    updateAllConnections();
-                    updateContextLineButtons(selectedLine);
-                    layer.draw(); 
-                } 
-            } 
-        }
+        function setShapeFill(t) { if(selectedNodes.length && selectedNodes[0].name() === 'person-group'){ saveHistory(); selectedNodes[0].setAttr('fillType',t); applyFillStyle(selectedNodes[0].findOne('.shape-body'),t); hideContextMenu(); } }
+        function toggleProband() { if(selectedNodes.length && selectedNodes[0].name() === 'person-group'){ saveHistory(); const n=selectedNodes[0],a=n.findOne('.proband-arrow'); a.visible(!a.visible()); n.setAttr('isProband',a.visible()); hideContextMenu(); } }
+        function toggleDeceased() { if(selectedNodes.length && selectedNodes[0].name() === 'person-group'){ saveHistory(); const n=selectedNodes[0],s=n.findOne('.deceased-slash'); s.visible(!s.visible()); n.setAttr('isDeceased',s.visible()); hideContextMenu(); } }
+        function toggleSeparated() { if(selectedLine){ const c=getAssociatedConn(selectedLine); if(c.type==='marriage'){ saveHistory(); c.isSeparated=!c.isSeparated; c.slash.visible(c.isSeparated); hideContextMenu(); } } }
 
         function applyFillStyle(s, t) {
             if(t==='white') { s.fill('white'); s.fillPriority('color'); }
             else if(t==='black') { s.fill(DARK_GREY); s.fillPriority('color'); }
             else { 
-                let sx=-20, ex=20; 
-                // Fix for Rect vs Circle vs Polygon coords
-                if (s.getClassName() === 'Rect') { sx=0; ex=40; }
-                if (s.getClassName() === 'RegularPolygon') { sx=-20; ex=20; }
-                
+                let sx=-20, ex=20; if(s.getClassName()==='Rect') { sx=0; ex=40; }
+                if(s.getClassName()==='RegularPolygon') { sx=-20; ex=20; }
                 s.fillLinearGradientStartPoint({x:sx,y:0}); s.fillLinearGradientEndPoint({x:ex,y:0});
                 s.fillLinearGradientColorStops([0,DARK_GREY,0.5,DARK_GREY,0.5,'white',1,'white']); s.fillPriority('linear-gradient');
             }
         }
 
         function downloadImage() {
-            gridLayer.hide(); dragLayer.hide();
+            gridLayer.hide(); dragLayer.hide(); textTransformer.hide();
             const link=document.createElement('a'); link.download='pedigree.png';
             link.href=stage.toDataURL({ pixelRatio:2 });
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
-            gridLayer.show(); dragLayer.show();
+            gridLayer.show(); dragLayer.show(); if(selectedNodes.some(n=>n.name()==='text-box-group')) textTransformer.show();
         }
 
-        stage.on('mousedown touchstart', (e) => {
-            hideContextMenu(); closeEditor();
-            if(e.target===stage && e.evt.touches && e.evt.touches.length > 1) return; // Ignore if 2 fingers (Pan)
-
-            if(e.target===stage) {
-                e.evt.preventDefault(); isSelecting=true;
-                // Use RELATIVE pointer for selection to work with zoom/pan
-                const ptr=stage.getRelativePointerPosition(); 
-                selectionStart={x:ptr.x,y:ptr.y};
-                selectionRect.visible(true); selectionRect.width(0); selectionRect.height(0); selectionRect.position(selectionStart);
-                clearSelection();
-            }
-        });
         stage.on('mousemove touchmove', (e) => {
             if(!isSelecting) return;
             const ptr=stage.getRelativePointerPosition();
@@ -922,7 +1936,7 @@
             if(isSelecting) {
                 isSelecting=false; selectionRect.visible(false);
                 const box=selectionRect.getClientRect();
-                const captured=layer.find('.person-group').filter(n=>Konva.Util.haveIntersection(box,n.getClientRect()));
+                const captured=layer.find('Group').filter(n=>(n.name()==='person-group' || n.name()==='text-box-group' || n.name()==='gen-group') && Konva.Util.haveIntersection(box,n.getClientRect()));
                 if(captured.length) selectMultiple(captured);
             }
         });

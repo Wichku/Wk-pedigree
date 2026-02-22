@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pedigree Builder V30</title>
+    <title>Wk Pedigree</title>
     <script src="https://unpkg.com/konva@9.2.0/konva.min.js"></script>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: #f8f9fa; font-family: sans-serif; touch-action: none; }
@@ -879,9 +879,12 @@
         }
 
         function loadState(state) {
-            layer.destroyChildren(); connections=[]; clearSelection(); hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
+            // Carefully destroy nodes without destroying the textTransformer
+            layer.getChildren().slice().forEach(child => {
+                if (child !== textTransformer) child.destroy();
+            });
+            connections=[]; clearSelection(); hideContextMenu(); closeEditor(); closeTextEditor(); closeGenEditor();
             idCounter = state.idCounter;
-            layer.add(textTransformer); 
             
             state.nodes.forEach(d=>createNode(d.x,d.y,d.type,d.id,d.name,d.fillType,d.isProband,d.isDeceased));
             
@@ -1205,12 +1208,17 @@
             if (editingGenNode) closeGenEditor();
 
             saveHistory(); 
-            layer.destroyChildren(); 
-            layer.add(textTransformer); 
+            
+            // Carefully destroy only content nodes, leaving the textTransformer intact
+            layer.getChildren().slice().forEach(child => {
+                if (child !== textTransformer) child.destroy();
+            });
+            
             bgLayer.destroyChildren(); bgLayer.draw();
             connections=[]; 
             idCounter=1; 
             clearSelection(); 
+            layer.draw();
         }
 
         // --- TEXT BOX LOGIC ---
